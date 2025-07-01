@@ -74,6 +74,7 @@ define("hellow", [
           key: 'expander',
           text: '',
           width: 30,
+		  type: 'html',
           format: function (row) {
 			  if (!row) return '';
 			  return row.hasChildren ? '<a class="expander" style="cursor:pointer">+</a>' : '';
