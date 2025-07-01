@@ -68,20 +68,19 @@ define("hellow", [
           if (el && el.classList) el.classList.remove("drag-over");
         },
         drop: function (dropData, el, event) {
-			const res = JSON.parse(dropData);
-                    console.log(res);
           if (el && el.classList) el.classList.remove("drag-over");
-          console.log("📦 Dropped Data:", dropData);
+          console.log("Dropped Data:", dropData);
 
           const engItem = dropData?.data?.items?.[0];
+		   console.log("engItem:", engItem);
           const pid = engItem?.physicalId || engItem?.objectId || engItem?.id;
-
+			 console.log("pid:", pid);
           if (!pid) {
-            console.warn("⚠️ No valid ID found in drop:", engItem);
+            console.warn("No valid ID found in drop:", engItem);
             return;
           }
 
-          console.log("✅ Dropped PhysicalProduct ID:", pid);
+          console.log("Dropped PhysicalProduct ID:", pid);
           rowsMap = {};
           fetchChildren(pid, 0, null);
         }
