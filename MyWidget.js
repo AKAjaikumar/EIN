@@ -15,6 +15,7 @@ define("hellow", [
       widget.body.innerHTML = "";
       console.log("widget loaded");
 	  const platformId = widget.getValue("x3dPlatformId");
+	  console.log("platformId:", platformId);
       widget.body.empty();
       widget.body.setStyle("border", "2px dashed #666");
       widget.body.setStyle("padding", "20px");
