@@ -86,10 +86,10 @@ define("hellow", [
           width: 30,
 		  type: 'html',
 		  dataIndex: 'expandcol',
-			format: function (row) {
+			format: function (val, row) {
 			  console.log("Formatting expander for row:", row);
 			  if (!row) return 'NO_ROW';
-			  return row.hasChildren ? `<a class="expander" style="cursor:pointer">[+]</a>` : '[–]';
+			  return row.hasChildren ? `<a class="expander" style="cursor:pointer">[+]</a>` : '';
 			}
         },
         { 
