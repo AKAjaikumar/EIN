@@ -58,6 +58,7 @@ define("hellow", [
 			  created: engItem?.created || new Date().toISOString(),
 			  level: 0,
 			  hasChildren: true,
+			  expander: true,
 			  parentId: null
 			};
             console.log("Dropped PhysicalProduct ID:", pid);
@@ -237,6 +238,7 @@ define("hellow", [
 						created: childObj["ds6w:created"],
 						level: level,
 						hasChildren: true, 
+						expander: true,
 						parentId: parentRow ? parentRow.id : null
 					  };
 					  children.push(row);
