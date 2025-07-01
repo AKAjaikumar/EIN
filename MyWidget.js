@@ -84,7 +84,7 @@ define("hellow", [
         text: '',
         width: 30,
         type: 'html',
-        dataIndex: 'expanderHtml',
+        dataIndex: '',
         format: function (val, row) {
           return `<div class="expander" data-rowid="${row.id}" style="cursor:pointer">${row._expanded ? '−' : '+'}</div>`;
         }
