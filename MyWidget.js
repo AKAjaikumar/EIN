@@ -120,7 +120,7 @@ define("hellow", [
 							onComplete: function (csrfData) {
 								const csrfToken = csrfData.csrf.value;
 								const csrfHeaderName = csrfData.csrf.name;
-								const getEngInstance = baseUrl + "/resources/v1/modeler/dseng:EngItem/" + pid + "/dseng:EngInstance";
+								const getEngInstance = baseUrl + "/dseng:EngItem/" + pid + "/dseng:EngInstance";
 									WAFData.authenticatedRequest(
 									  getEngInstance, {
 										method: "GET",
