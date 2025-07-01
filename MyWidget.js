@@ -53,8 +53,8 @@ define("hellow", [
             }
 			const rootRow = {
 			  id: pid,
-			  name: engItem?.name || "Root",
-			  type: engItem?.type || "VPMReference",
+			  name: engItem?.displayName || "Root",
+			  type: engItem?.objectType || "VPMReference",
 			  created: engItem?.created || new Date().toISOString(),
 			  level: 0,
 			  hasChildren: true,
