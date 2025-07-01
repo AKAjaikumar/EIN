@@ -1,18 +1,16 @@
-require([
-  'UWA/Core',
-  'UWA/Drivers/Alone',
-  'DS/DataGridView/DataGridView',
-  'DS/WAFData/WAFData',
-  'DS/PlatformAPI/PlatformAPI'
-], function (UWA, Alone, DataGridView, WAFData, PlatformAPI) {
-  'use strict';
-  if (typeof widget !== 'undefined') {
-        widget.addEvent('onLoad', function () {
-			 console.log("Widget Loaded");
-			var container = document.getElementById('product-grid');
-		});
-    } else {
-        console.error('Widget object is not available');
-    }
-
+define("hellow", ["UWA/Core",
+  "UWA/Drivers/Alone",
+  "DS/DataGridView/DataGridView",
+  "DS/WAFData/WAFData",
+  "DS/PlatformAPI/PlatformAPI"], function (Core, Alone, DataGridView, WAFData,PlatformAPI) {
+	   var myWidget = {
+			onLoadWidget: function () {
+				consoel.log("WIdget Loaded");
+				widget.body.innerHTML = "";
+				
+			}
+		    return myWidget;
+			
+		};
+	
 });
