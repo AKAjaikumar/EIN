@@ -85,13 +85,11 @@ define("hellow", [
           text: '',
           width: 30,
 		  type: 'html',
-			format: function (val) {
-				const row = this; 
-				console.log("Formatting expander for row:", row);
-
-				if (!row) return '';
-				return row.hasChildren ? `<a class="expander" style="cursor:pointer">[+]</a>` : '';
-			  }
+		  format: function (val, row) {  
+			console.log("Formatting expander for row:", row);
+			if (!row) return '';
+			return row.hasChildren ? `<a class="expander" style="cursor:pointer">[+]</a>` : '';
+		  }
         },
         { 
 			key: 'name', 
