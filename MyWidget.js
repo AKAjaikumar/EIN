@@ -67,7 +67,9 @@ define("hellow", [
         leave: function (el, event) {
           if (el && el.classList) el.classList.remove("drag-over");
         },
-        drop: function (el, event, dropData) {
+        drop: function (data, event, dropData) {
+			const res = JSON.parse(data);
+                    console.log(res);
           if (el && el.classList) el.classList.remove("drag-over");
           console.log("📦 Dropped Data:", dropData);
 
