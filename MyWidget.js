@@ -85,7 +85,7 @@ define("hellow", [
           text: '',
           width: 30,
 		  type: 'html',
-		  dataIndex: 'expandcol',
+		  dataIndex: 'expanderHtml',
 		  format: function(val) {
 			return val || '';
 		  }
