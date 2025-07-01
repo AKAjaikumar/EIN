@@ -101,7 +101,7 @@ define("hellow", [
 
   function fetchChildren(pid, level, parentRow) {
     WAFData.authenticatedRequest(
-      "/resources/v1/modeler/ddseng:EngItem/" + pid + "/dseng:EngInstance", {
+      "/resources/v1/modeler/dseng:EngItem/" + pid + "/dseng:EngInstance", {
         method: "GET",
         type: "json",
         onComplete: function (resp) {
