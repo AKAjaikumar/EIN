@@ -86,7 +86,7 @@ define("hellow", [
         {
           key: 'created',
           text: 'Created On',
-		  dataIndex: 'created'
+		  dataIndex: 'created',
           format: function (val, row) {
 			  if (!val && row && row.created) val = row.created;
 			  const d = new Date(val);
