@@ -68,22 +68,33 @@ define("hellow", [
           if (el && el.classList) el.classList.remove("drag-over");
         },
         drop: function (dropData, el, event) {
-          if (el && el.classList) el.classList.remove("drag-over");
-          console.log("Dropped Data:", dropData);
+		  if (el && el.classList) el.classList.remove("drag-over");
+		  
+		  try {
+			
+			const parsed = typeof dropData === 'string' ? JSON.parse(dropData) : dropData;
+			
+			console.log("📦 Dropped Data:", parsed);
+			
+			const engItem = parsed?.data?.items?.[0];
+			console.log("engItem:", engItem);
 
-          const engItem = dropData?.data?.items?.[0];
-		   console.log("engItem:", engItem);
-          const pid = engItem?.physicalId || engItem?.objectId || engItem?.id;
-			 console.log("pid:", pid);
-          if (!pid) {
-            console.warn("No valid ID found in drop:", engItem);
-            return;
-          }
+			const pid = engItem?.physicalId || engItem?.objectId || engItem?.id;
+			console.log("pid:", pid);
 
-          console.log("Dropped PhysicalProduct ID:", pid);
-          rowsMap = {};
-          fetchChildren(pid, 0, null);
-        }
+			if (!pid) {
+			  console.warn("⚠️ No valid ID found in drop:", engItem);
+			  return;
+			}
+
+			console.log("✅ Dropped PhysicalProduct ID:", pid);
+			rowsMap = {};
+			fetchChildren(pid, 0, null);
+
+		  } catch (e) {
+			console.error("❌ Failed to parse dropped data:", e);
+		  }
+		}
       });
     }
   };
