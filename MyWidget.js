@@ -115,33 +115,25 @@ define("hellow", [
   widget.body.empty();
   grid.inject(widget.body);
 
-  widget.body.addEventListener('click', function (e) {
-	  const target = e.target;
-	  if (target && target.classList.contains('expander')) {
-		const rowId = target.getAttribute('data-rowid');
-		if (!rowId) {
-		  console.warn("Missing data-rowid on expander click");
-		  return;
-		}
-
-		const row = rowsMap[rowId];
-		if (!row) {
-		  console.warn("No matching row in rowsMap for id:", rowId);
-		  return;
-		}
-
-		console.log("Expander clicked for row:", row);
-
-		if (row._expanded) {
-		  collapseChildren(row);
-		} else {
-		  expandChildren(row);
-		}
-	  }
-	});
-
 }
+widget.body.addEventListener('click', function (e) {
+  const target = e.target;
+  if (target && target.classList.contains('expander')) {
+    const rowId = target.getAttribute('data-rowid');
+    if (!rowId) return;
 
+    const row = rowsMap[rowId];
+    if (!row) return;
+
+    console.log("Expander clicked:", row);
+
+    if (row._expanded) {
+      collapseChildren(row);
+    } else {
+      expandChildren(row);
+    }
+  }
+});
 
   function fetchChildren(pid, level, parentRow) {
 	  console.log("Fetched children for", pid, parentRow);
