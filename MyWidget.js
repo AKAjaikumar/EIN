@@ -54,14 +54,25 @@ define("hellow", [
 
       grid.inject(widget.body);
 
-      // Setup DS DataDragAndDrop listener
-      DnD.setDropListener(widget.body, function (data) {
-        if (!data || !data.data || !data.data.items || !data.data.items.length) return;
-        var engItem = data.data.items[0];
-        var pid = engItem.objectId;
-        rowsMap = {};
-        fetchChildren(pid, 0, null);
-      });
+      
+      DnD.setDnDTarget(widget.body, {
+		  acceptedTypes: ['VPMReference'], 
+		  drop: function (data) {
+			if (!data || !data.items || !data.items.length) return;
+
+			var engItem = data.items[0];
+			var pid = engItem.objectId || engItem.physicalId || engItem.id;
+
+			if (!pid) {
+			  console.warn("Dropped object has no ID", engItem);
+			  return;
+			}
+
+			console.log("Dropped:", engItem);
+			rowsMap = {};
+			fetchChildren(pid, 0, null);
+		  }
+		});
     }
   };
 
