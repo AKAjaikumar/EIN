@@ -89,11 +89,16 @@ define("hellow", [
 			  return row.hasChildren ? '<a class="expander" style="cursor:pointer">+</a>' : '';
 			}
         },
-        { key: 'name', text: 'Name', dataIndex: 'name' , 
-		format: function (val, row) {
-			const indent = row.level * 20;
-			return `<div style="margin-left:${indent}px">${val}</div>`;
-		}},
+        { 
+			key: 'name', 
+			text: 'Name', 
+			dataIndex: 'name' , 
+			format: function (val, row) {
+			  if (!row || typeof row.level !== 'number') return val || '';
+			  const indent = row.level * 20;
+			  return `<div style="margin-left:${indent}px">${val || ''}</div>`;
+			}
+		},
         { key: 'type', text: 'Type', dataIndex: 'type' },
         {
           key: 'created',
