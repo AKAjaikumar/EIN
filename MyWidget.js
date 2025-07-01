@@ -85,7 +85,6 @@ define("hellow", [
           text: '',
           width: 30,
 		  type: 'html',
-		  dataIndex: 'expandcol',
 			format: function (val, row) {
 			  console.log("Formatting expander for row:", row);
 			  if (!row) return 'NO_ROW';
