@@ -51,10 +51,18 @@ define("hellow", [
               console.warn("No valid ID found in drop:", engItem);
               return;
             }
-
+			const rootRow = {
+			  id: pid,
+			  name: engItem?.name || "Root",
+			  type: engItem?.type || "VPMReference",
+			  created: engItem?.created || new Date().toISOString(),
+			  level: 0,
+			  hasChildren: true,
+			  parentId: null
+			};
             console.log("Dropped PhysicalProduct ID:", pid);
-            rowsMap = {};
-            fetchChildren(pid, 0, null);
+            rowsMap[pid] = rootRow;
+            fetchChildren(pid, 0, rootRow);
 
           } catch (e) {
             console.error("\u274c Failed to parse dropped data:", e);
@@ -81,7 +89,11 @@ define("hellow", [
 			  return row.hasChildren ? '<a class="expander" style="cursor:pointer">+</a>' : '';
 			}
         },
-        { key: 'name', text: 'Name', dataIndex: 'name'},
+        { key: 'name', text: 'Name', dataIndex: 'name' , 
+		format: function (val, row) {
+			const indent = row.level * 20;
+			return `<div style="margin-left:${indent}px">${val}</div>`;
+		}},
         { key: 'type', text: 'Type', dataIndex: 'type' },
         {
           key: 'created',
@@ -264,19 +276,23 @@ define("hellow", [
   }
 
   function updateDataGrid() {
-    const result = [];
-    function addRowRecursive(row) {
-      result.push(row);
-      if (row._expanded && row._children) {
-        row._children.forEach(addRowRecursive);
-      }
-    }
-    for (let id in rowsMap) {
-      const r = rowsMap[id];
-      if (!r.parentId) addRowRecursive(r);
-    }
-    createGrid(result);
-  }
+	  const result = [];
+
+	  function addRowRecursive(row) {
+		result.push(row);
+		if (row._expanded && row._children) {
+		  row._children.forEach(addRowRecursive);
+		}
+	  }
+
+	  for (let id in rowsMap) {
+		const row = rowsMap[id];
+		if (!row.parentId) addRowRecursive(row);
+	  }
+
+	  createGrid(result);
+	}
+
 
   return myWidget;
 });
