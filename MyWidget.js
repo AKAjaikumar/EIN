@@ -81,7 +81,7 @@ define("hellow", [
       className: 'uwa-table',
       columns: [
         {
-          key: 'expander',
+          key: 'expandcol',
           text: '',
           width: 30,
 		  type: 'html',
@@ -120,15 +120,15 @@ define("hellow", [
     });
 
     grid.addEvent('onCellClick', function (cell) {
-      if (cell.column.key === 'expander') {
-        var row = cell.data;
-        if (row._expanded) {
-          collapseChildren(row);
-        } else {
-          expandChildren(row);
-        }
-      }
-    });
+	  if (cell.column.key === 'expandcol') {
+		var row = cell.data;
+		if (row._expanded) {
+		  collapseChildren(row);
+		} else {
+		  expandChildren(row);
+		}
+	  }
+	});
 
     widget.body.empty();
     grid.inject(widget.body);
