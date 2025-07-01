@@ -4,7 +4,10 @@ define("hellow", [
   "DS/WAFData/WAFData",
   "DS/PlatformAPI/PlatformAPI",
   "UWA/Controls/DataGrid",
-], function (Core, Alone, WAFData, PlatformAPI, DataGrid) {
+  "DS/DataDragAndDrop/DataDragAndDrop"
+], function (Core, Alone, WAFData, PlatformAPI, DataGrid, DnD) {
+	var grid;
+  var rowsMap = {};
   var myWidget = {
     onLoadWidget: function () {
 		widget.body.innerHTML = "";
@@ -13,28 +16,119 @@ define("hellow", [
 		console.log("DataGrid loaded:", DataGrid);
 		widget.body.empty();
 
-		  var grid = new DataGrid({
-			className: 'uwa-table',
-			columns: [
-			  { key: 'name', text: 'Name' },
-			  { key: 'type', text: 'Type' },
-			  {
-				key: 'date',
-				text: 'Created On',
-				format: function (val) {
-				  return new Date(val).toLocaleDateString();
-				}
-			  }
-			],
-			data: [
-			  { name: 'Product A', type: 'Part', date: '2023-05-01' },
-			  { name: 'Product B', type: 'Assembly', date: '2023-07-01' },
-			]
-		  });
+		  grid = new DataGrid({
+        className: 'uwa-table',
+        columns: [
+          {
+            key: 'expander',
+            text: '',
+            width: 30,
+            format: function (row) {
+              return row.hasChildren ? '<a class="expander" style="cursor:pointer">+</a>' : '';
+            }
+          },
+          { key: 'name', text: 'Name' },
+          { key: 'type', text: 'Type' },
+          {
+            key: 'created',
+            text: 'Created On',
+            format: function (val) {
+              var d = new Date(val);
+              return isNaN(d) ? '' : d.toLocaleDateString();
+            }
+          }
+        ],
+        data: []
+      });
 
-		  grid.inject(widget.body);
+      grid.addEvent('onCellClick', function (cell) {
+        if (cell.column.key === 'expander') {
+          var row = cell.data;
+          if (row._expanded) {
+            collapseChildren(row);
+          } else {
+            expandChildren(row);
+          }
+        }
+      });
+
+      grid.inject(widget.body);
+
+      // Setup DS DataDragAndDrop listener
+      DnD.setDropListener(widget.body, function (data) {
+        if (!data || !data.data || !data.data.items || !data.data.items.length) return;
+        var engItem = data.data.items[0];
+        var pid = engItem.objectId;
+        rowsMap = {};
+        fetchChildren(pid, 0, null);
+      });
     }
   };
+
+  function fetchChildren(pid, level, parentRow) {
+    WAFData.authenticatedRequest(
+      "/resources/v1/modeler/ddseng:EngItem/" + pid + "/dseng:EngInstance", {
+        method: "GET",
+        type: "json",
+        onComplete: function (resp) {
+          if (!resp.children) return;
+          var children = [];
+          resp.children.forEach(child => {
+            const row = {
+              id: child.id,
+              name: child.name,
+              type: child.type,
+              created: child.created,
+              level: level,
+              hasChildren: true,
+              parentId: parentRow ? parentRow.id : null
+            };
+            children.push(row);
+            rowsMap[child.id] = row;
+          });
+
+          if (parentRow) {
+            parentRow._expanded = true;
+            parentRow._children = children;
+            updateDataGrid();
+          } else {
+            grid.setData(children);
+          }
+        }
+    });
+  }
+
+  function expandChildren(row) {
+    if (!row._children) {
+      fetchChildren(row.id, row.level + 1, row);
+    } else {
+      row._expanded = true;
+      updateDataGrid();
+    }
+  }
+
+  function collapseChildren(row) {
+    row._expanded = false;
+    updateDataGrid();
+  }
+
+  function updateDataGrid() {
+    const result = [];
+
+    function addRowRecursive(row) {
+      result.push(row);
+      if (row._expanded && row._children) {
+        row._children.forEach(addRowRecursive);
+      }
+    }
+
+    for (let id in rowsMap) {
+      const r = rowsMap[id];
+      if (!r.parentId) addRowRecursive(r);
+    }
+
+    grid.setData(result);
+  }
 
   return myWidget;
 });
