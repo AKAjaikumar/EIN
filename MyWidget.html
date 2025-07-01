@@ -1,31 +1,11 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:widget="http://www.netvibes.com/ns/">
-
+<!DOCTYPE html>
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://akajaikumar.github.io/EIN/MyWidget.js"></script>
-    
-    <title>Report Management</title>
-
-    <script>
-
-        require(['hellow'], function (myWidget) {
-            'use strict';
-
-            if (widget) {
-                widget.addEvent('onLoad', myWidget.onLoadWidget);
-            } else {
-                console.warn("Widget not available yet");
-            }
-        });
-    </script>
-
+    <title>DataGridView Widget</title>
 </head>
-
 <body>
-    <p> </p>
+    <div id="grid-container" style="height:100%;width:100%;"></div>
+    <script type="text/javascript" src="https://akajaikumar.github.io/EIN/MyWidget.js"></script>
 </body>
-
 </html>
