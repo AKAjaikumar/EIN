@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>WAFData test page</title>
+  <script src="../AmdLoader/AmdLoader.js"></script>
+  <script src="../WAFData/WAFData.js"></script>
+  <style>
+    h1, h2, h3 {
+        font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+    <h1>Please open the console to test the API. A few sample commands :</h1>
+    <h2>Simple requests</h2>
+    <pre>
+    require(['DS/WAFData/WAFData'],
+        function(WAFData) {
+            WAFData.request(window.location);
+        }
+    );
+    </pre>
+    <pre>
+    require(['DS/WAFData/WAFData'],
+        function (WAFData) {
+            WAFData.request(
+                'http://httpbin.org/status/418',
+                {
+                    headers: { 'X-Requested-With': null }
+                }
+            )
+        }
+    );
+    </pre>
+    <h2>Passport-authenticated request</h2>
+    <pre>
+    require(['DS/WAFData/WAFData'],
+        function(WAFData){
+            WAFData.authenticatedRequest (
+                'https://3DSWYM/api/notification/list',
+                {
+                    method:'POST',
+                    data:'{"limit":5,"page":1,"only_unread":true}',
+                    headers:{'Content-Type':'application/json', 'Accept':'application/json'},
+                    onProgress: function(oEvent) {
+                        if (oEvent.lengthComputable) {
+                            var percentComplete = oEvent.loaded / oEvent.total;
+                            console.log(percentComplete +'% complete');
+                        } else {
+                            // Unable to compute progress information since the total size is unknown
+                        }
+                    }
+                }
+            );
+        }
+    );
+    </pre>
+    <h2>Proxified request</h2>
+    <pre>
+    require(['DS/WAFData/WAFData'],
+        function(WAFData) {
+            WAFData.proxifiedRequest(
+                'http://httpbin.org/post',
+                {
+                    proxy:'ajax',
+                    method:'POST',
+                    data: {name: 'John'}
+                }
+            );
+        }
+    );
+    </pre>
+    <h2>Handled Request</h2>
+    <h3>Passport-authenticated request</h3>
+    <pre>
+    require(['DS/WAFData/WAFData'],
+        function(WAFData){
+            WAFData.handleRequest(
+                'https://3DSWYM/api/notification/list',
+                {
+                    authentication: 'passport',
+                    method:'POST',
+                    data: '{"limit":5,"page":1,"only_unread":true}',
+                    headers: {
+                        'Content-Type':'application/json',
+                        'Accept':'application/json'
+                    }
+                }
+            );
+        }
+    );
+    </pre>
+    <h3>Proxified request</h3>
+    <pre>
+    require(['DS/WAFData/WAFData'],
+        function(WAFData){
+            WAFData.handleRequest(
+                'http://httpbin.org/post',
+                {
+                    method:'POST',
+                    data: {
+                        name: 'John'
+                    }
+                }
+            );
+        }
+    );
+    </pre>
+    <h3>Simple request</h3>
+    <pre>
+    require(['DS/WAFData/WAFData'],
+        function(WAFData){
+            WAFData.handleRequest(
+                'http://httpbin.org/status/418',
+                {
+                    headers: {
+                        'X-Requested-With': null
+                    }
+                }
+            );
+        }
+    );
+    </pre>
+    <h3>Timeout</h3>
+    <pre>
+    require(['DS/WAFData/WAFData'], 
+        function (WAFData) {
+            WAFData.request('http://httpbin.org/get', {
+                timeout: 200,
+                onComplete: function () {
+                    console.log('The call has succeded');
+                },
+                onFailure: function () {
+                    console.error('The call has failed');
+                },
+                onTimeout: function () {
+                    console.warn('The call has timed out');
+                }
+            });
+        }
+    );
+    </pre>
+</body>
+</html>
