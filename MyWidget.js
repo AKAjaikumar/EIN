@@ -15,8 +15,10 @@ define("hellow", [
 		
 		console.log("DataGrid loaded:", DataGrid);
 		widget.body.empty();
-
-		  grid = new DataGrid({
+		widget.body.setStyle("border", "2px dashed #666");
+		  widget.body.setStyle("padding", "20px");
+		  widget.body.setText("Drag a Physical Product here");
+			  grid = new DataGrid({
         className: 'uwa-table',
         columns: [
           {
@@ -54,27 +56,34 @@ define("hellow", [
 
       grid.inject(widget.body);
 
-      PlatformAPI.subscribe('DS/DataDragAndDrop/dragEnter', function () {
-		  console.log("🟢 dragEnter received");
-		});
-      DnD.setDnDTarget(widget.body, {
-		  acceptedTypes: ['VPMReference'], 
-		  drop: function (data) {
-			if (!data || !data.items || !data.items.length) return;
+     
+      DnD.droppable(widget.body, {
+        enter: function (el, event) {
+          el.classList.add("drag-over");
+        },
+        over: function (el, event) {
+          return true;
+        },
+        leave: function (el, event) {
+          el.classList.remove("drag-over");
+        },
+        drop: function (el, event, dropData) {
+          el.classList.remove("drag-over");
+          console.log("Dropped Data:", dropData);
 
-			var engItem = data.items[0];
-			var pid = engItem.objectId || engItem.physicalId || engItem.id;
+          var engItem = dropData && dropData.data && dropData.data.items && dropData.data.items[0];
+          var pid = engItem && (engItem.physicalId || engItem.objectId || engItem.id);
 
-			if (!pid) {
-			  console.warn("Dropped object has no ID", engItem);
-			  return;
-			}
+          if (!pid) {
+            console.warn("No valid ID found in drop data:", engItem);
+            return;
+          }
 
-			console.log("Dropped:", engItem);
-			rowsMap = {};
-			fetchChildren(pid, 0, null);
-		  }
-		});
+          console.log("Dropped PhysicalProduct ID:", pid);
+          rowsMap = {};
+          fetchChildren(pid, 0, null);
+        }
+      });
     }
   };
 
