@@ -304,7 +304,7 @@ define("hellow", [
 		if (!row.parentId) addRowRecursive(row);
 	  }
 
-	  createGrid(result);
+	  grid.update(result);
 }
 
 
