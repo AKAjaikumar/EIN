@@ -84,10 +84,11 @@ define("hellow", [
         {
           key: 'created',
           text: 'Created On',
-          format: function (val) {
-            var d = new Date(val);
-            return isNaN(d) ? '' : d.toLocaleDateString();
-          }
+          format: function (val, row) {
+			  if (!val && row && row.created) val = row.created;
+			  const d = new Date(val);
+			  return isNaN(d) ? '' : d.toLocaleDateString();
+		  }
         }
       ],
       data: data
