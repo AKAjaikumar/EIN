@@ -4,8 +4,9 @@ define("hellow", [
   "DS/WAFData/WAFData",
   "DS/PlatformAPI/PlatformAPI",
   "UWA/Controls/DataGrid",
-  "DS/DataDragAndDrop/DataDragAndDrop"
-], function (Core, Alone, WAFData, PlatformAPI, DataGrid, DataDnD) {
+  "DS/DataDragAndDrop/DataDragAndDrop",
+  "DS/i3DXCompassServices/i3DXCompassServices"
+], function (Core, Alone, WAFData, PlatformAPI, DataGrid, DataDnD, i3DXCompassServices) {
   var grid;
   var rowsMap = {};
 
@@ -100,36 +101,70 @@ define("hellow", [
   };
 
   function fetchChildren(pid, level, parentRow) {
-    WAFData.authenticatedRequest(
-      "/resources/v1/modeler/dseng:EngItem/" + pid + "/dseng:EngInstance", {
-        method: "GET",
-        type: "json",
-        onComplete: function (resp) {
-          if (!resp.children) return;
-          var children = [];
-          resp.children.forEach(child => {
-            const row = {
-              id: child.id,
-              name: child.name,
-              type: child.type,
-              created: child.created,
-              level: level,
-              hasChildren: true,
-              parentId: parentRow ? parentRow.id : null
-            };
-            children.push(row);
-            rowsMap[child.id] = row;
-          });
+	  i3DXCompassServices.getServiceUrl({
+					platformId: platformId,
+					serviceName: '3DSpace',
+					onComplete: function (URL3DSpace) {
+						let baseUrl = typeof URL3DSpace === "string" ? URL3DSpace : URL3DSpace[0].url;
+						if (baseUrl.endsWith('/3dspace')) {
+							baseUrl = baseUrl.replace('/3dspace', '');
+						}
 
-          if (parentRow) {
-            parentRow._expanded = true;
-            parentRow._children = children;
-            updateDataGrid();
-          } else {
-            grid.setData(children);
-          }
-        }
-      });
+						const csrfURL = baseUrl + '/resources/v1/application/CSRF';
+
+						WAFData.authenticatedRequest(csrfURL, {
+							method: 'GET',
+							type: 'json',
+							onComplete: function (csrfData) {
+								const csrfToken = csrfData.csrf.value;
+								const csrfHeaderName = csrfData.csrf.name;
+								if(baseUrl.endsWith('/enovia')) {
+									baseUrl = baseUrl.replace('/enovia', '');
+								}
+								if(baseUrl.indexOf('-space') !== -1) {
+									baseUrl = baseUrl.replace('-space', '-fedsearch');
+								}
+								const getEngInstance = baseUrl + "/resources/v1/modeler/dseng:EngItem/" + pid + "/dseng:EngInstance";
+									WAFData.authenticatedRequest(
+									  getEngInstance, {
+										method: "GET",
+										type: "json",
+										onComplete: function (resp) {
+										  if (!resp.children) return;
+										  var children = [];
+										  resp.children.forEach(child => {
+											const row = {
+											  id: child.id,
+											  name: child.name,
+											  type: child.type,
+											  created: child.created,
+											  level: level,
+											  hasChildren: true,
+											  parentId: parentRow ? parentRow.id : null
+											};
+											children.push(row);
+											rowsMap[child.id] = row;
+										  });
+
+										  if (parentRow) {
+											parentRow._expanded = true;
+											parentRow._children = children;
+											updateDataGrid();
+										  } else {
+											grid.setData(children);
+										  }
+										}
+									  });
+							},
+								onFailure: function (err) {
+									console.error("Failed to fetch CSRF token:", err);
+								}
+							});
+					},
+					onFailure: function () {
+						console.error("Failed to get 3DSpace URL");
+					}
+				});
   }
 
   function expandChildren(row) {
