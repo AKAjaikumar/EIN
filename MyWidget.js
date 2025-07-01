@@ -1,16 +1,25 @@
+requirejs.config({
+    paths: {
+        datagrid: "https://akajaikumar.github.io/EIN/DS/DataGridView/DataGridView"
+
+    },
+}),
+define("DataGridView", ["datagrid"], function (datagrid) {
+    return datagrid;
+}),
 define("hellow", [
   "UWA/Core",
   "UWA/Drivers/Alone",
   "DS/WAFData/WAFData",
-  "DS/PlatformAPI/PlatformAPI"
-], function (Core, Alone, WAFData, PlatformAPI) {
+  "DS/PlatformAPI/PlatformAPI",
+  "DataGridView"
+], function (Core, Alone, WAFData, PlatformAPI, DataGridView) {
   var myWidget = {
     onLoadWidget: function () {
 		widget.body.innerHTML = "";
 		console.log("widget loaded");
-		require(["DS/DataGridView/DataGridView"], function (DataGridView) {
-			console.log("DataGridView loaded:", DataGridView);
-		});
+		
+		console.log("DataGridView loaded:", DataGridView);
 		
     }
   };
