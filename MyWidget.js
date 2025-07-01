@@ -58,7 +58,7 @@ define("hellow", [
 			  created: engItem?.created || new Date().toISOString(),
 			  level: 0,
 			  hasChildren: true,
-			  expandcol: '',
+			  expanderHtml: `<a class="expander" style="cursor:pointer">+</a>`,
 			  parentId: null
 			};
             console.log("Dropped PhysicalProduct ID:", pid);
