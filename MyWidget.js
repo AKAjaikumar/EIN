@@ -1,8 +1,8 @@
 define("hellow", ["UWA/Core",
   "UWA/Drivers/Alone",
-  "DS/DataGridView/DataGridView",
+  "DS/DataGrid/DataGrid",
   "DS/WAFData/WAFData",
-  "DS/PlatformAPI/PlatformAPI"], function (Core, Alone, DataGridView, WAFData,PlatformAPI) {
+  "DS/PlatformAPI/PlatformAPI"], function (Core, Alone, DataGrid, WAFData,PlatformAPI) {
 	    var myWidget = {
 			onLoadWidget: function () {
 				consoel.log("WIdget Loaded");
