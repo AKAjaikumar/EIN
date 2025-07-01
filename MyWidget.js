@@ -212,7 +212,7 @@ define("hellow", [
 					parentRow._children = children;
 					updateDataGrid();
 				  } else {
-					grid.setData(children);
+					grid.setRows(children);
 				  }
 				},
 				onFailure: function (err) {
