@@ -212,7 +212,8 @@ define("hellow", [
 					parentRow._children = children;
 					updateDataGrid();
 				  } else {
-					grid.setRows(children);
+					grid.options.data = children;
+					grid.render();
 				  }
 				},
 				onFailure: function (err) {
@@ -261,7 +262,8 @@ define("hellow", [
       if (!r.parentId) addRowRecursive(r);
     }
 
-    grid.setData(result);
+    grid.options.data = result;
+	grid.render();
   }
 
   return myWidget;
