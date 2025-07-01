@@ -116,12 +116,21 @@ define("hellow", [
   grid.inject(widget.body);
 
   widget.body.addEventListener('click', function (e) {
-	  if (e.target && e.target.classList.contains('expander')) {
-		const rowId = e.target.dataset.rowid;
-		const row = rowsMap[rowId];
-		if (!row) return;
+	  const target = e.target;
+	  if (target && target.classList.contains('expander')) {
+		const rowId = target.getAttribute('data-rowid');
+		if (!rowId) {
+		  console.warn("Missing data-rowid on expander click");
+		  return;
+		}
 
-		console.log("Expander clicked:", row);
+		const row = rowsMap[rowId];
+		if (!row) {
+		  console.warn("No matching row in rowsMap for id:", rowId);
+		  return;
+		}
+
+		console.log("Expander clicked for row:", row);
 
 		if (row._expanded) {
 		  collapseChildren(row);
@@ -130,6 +139,7 @@ define("hellow", [
 		}
 	  }
 	});
+
 }
 
 
@@ -291,7 +301,7 @@ define("hellow", [
 
   function addRowRecursive(row) {
 		if (row.hasChildren) {
-		  row.expanderHtml = `<div class="expander" style="cursor:pointer">${row._expanded ? '−' : '+'}</div>`;
+		  row.expanderHtml = `<div class="expander" data-rowid="${row.id || ''}" style="cursor:pointer">${row._expanded ? '−' : '+'}</div>`;
 		} else {
 		  row.expanderHtml = '';
 		}
