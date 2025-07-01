@@ -115,12 +115,10 @@ define("hellow", [
       data: data
     });
 
-    grid.addEvent('onCellClick', function (cell) {
-	  console.log("Cell clicked:", cell.column.key, cell.data);
-	  
-	  if (cell.column.key === 'expandcol') {
-		var row = cell.data;
-		console.log("Expander clicked for row:", row);
+    grid.addEvent('onRowClick', function (row, event) {
+	  const target = event.target;
+	  if (target && target.classList.contains('expander')) {
+		console.log("Expander clicked:", row);
 
 		if (row._expanded) {
 		  collapseChildren(row);
