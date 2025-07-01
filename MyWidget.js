@@ -116,8 +116,12 @@ define("hellow", [
     });
 
     grid.addEvent('onCellClick', function (cell) {
+	  console.log("Cell clicked:", cell.column.key, cell.data);
+	  
 	  if (cell.column.key === 'expandcol') {
 		var row = cell.data;
+		console.log("Expander clicked for row:", row);
+
 		if (row._expanded) {
 		  collapseChildren(row);
 		} else {
@@ -131,6 +135,7 @@ define("hellow", [
   }
 
   function fetchChildren(pid, level, parentRow) {
+	  console.log("Fetched children for", pid, parentRow);
     i3DXCompassServices.getServiceUrl({
       platformId: widget.getValue("x3dPlatformId"),
       serviceName: "3DSpace",
@@ -287,7 +292,7 @@ define("hellow", [
 
   function addRowRecursive(row) {
 		if (row.hasChildren) {
-		  row.expanderHtml = `<a class="expander" style="cursor:pointer">${row._expanded ? '−' : '+'}</a>`;
+		  row.expanderHtml = `<div class="expander" style="cursor:pointer">${row._expanded ? '−' : '+'}</div>`;
 		} else {
 		  row.expanderHtml = '';
 		}
