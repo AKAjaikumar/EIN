@@ -85,10 +85,9 @@ define("hellow", [
           text: '',
           width: 30,
 		  type: 'html',
-		  format: function (val, row) {  
-			console.log("Formatting expander for row:", row);
-			if (!row) return '';
-			return row.hasChildren ? `<a class="expander" style="cursor:pointer">[+]</a>` : '';
+		  dataIndex: 'expandcol',
+		  format: function(val) {
+			return val || '';
 		  }
         },
         { 
@@ -284,10 +283,17 @@ define("hellow", [
   }
 
   function updateDataGrid() {
-	  const result = [];
+  const result = [];
 
-	  function addRowRecursive(row) {
+  function addRowRecursive(row) {
+		if (row.hasChildren) {
+		  row.expanderHtml = `<a class="expander" style="cursor:pointer">${row._expanded ? '−' : '+'}</a>`;
+		} else {
+		  row.expanderHtml = '';
+		}
+
 		result.push(row);
+
 		if (row._expanded && row._children) {
 		  row._children.forEach(addRowRecursive);
 		}
@@ -299,7 +305,7 @@ define("hellow", [
 	  }
 
 	  createGrid(result);
-	}
+}
 
 
   return myWidget;
