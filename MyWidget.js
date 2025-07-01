@@ -9,12 +9,13 @@ define("hellow", [
 ], function (Core, Alone, WAFData, PlatformAPI, DataGrid, DataDnD, i3DXCompassServices) {
   var grid;
   var rowsMap = {};
+  var platformId;
 
   var myWidget = {
     onLoadWidget: function () {
       widget.body.innerHTML = "";
       console.log("widget loaded");
-	  const platformId = widget.getValue("x3dPlatformId");
+	  platformId = widget.getValue("x3dPlatformId");
 	  console.log("platformId:", platformId);
       widget.body.empty();
       widget.body.setStyle("border", "2px dashed #666");
