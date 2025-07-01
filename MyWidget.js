@@ -58,34 +58,32 @@ define("hellow", [
 
      
       DnD.droppable(widget.body, {
-        enter: function (el, event) {
-          el.classList.add("drag-over");
-        },
-        over: function (el, event) {
-          return true;
-        },
-        leave: function (el, event) {
-          el.classList.remove("drag-over");
-        },
-        drop: function (el, event, dropData) {
-          el.classList.remove("drag-over");
-          console.log("Dropped Data:", dropData);
+		  enter: function (el, event) {
+			if (el && el.classList) el.classList.add("drag-over");
+		  },
+		  over: function (el, event) {
+			return true;
+		  },
+		  leave: function (el, event) {
+			if (el && el.classList) el.classList.remove("drag-over");
+		  },
+		  drop: function (el, event, dropData) {
+			if (el && el.classList) el.classList.remove("drag-over");
+			console.log("Dropped Data:", dropData);
 
-          var engItem = dropData && dropData.data && dropData.data.items && dropData.data.items[0];
-          var pid = engItem && (engItem.physicalId || engItem.objectId || engItem.id);
+			const engItem = dropData?.data?.items?.[0];
+			const pid = engItem?.physicalId || engItem?.objectId || engItem?.id;
 
-          if (!pid) {
-            console.warn("No valid ID found in drop data:", engItem);
-            return;
-          }
+			if (!pid) {
+			  console.warn("No valid ID found in drop:", engItem);
+			  return;
+			}
 
-          console.log("Dropped PhysicalProduct ID:", pid);
-          rowsMap = {};
-          fetchChildren(pid, 0, null);
-        }
-      });
-    }
-  };
+			console.log("Dropped PhysicalProduct ID:", pid);
+			rowsMap = {};
+			fetchChildren(pid, 0, null);
+		  }
+		});
 
   function fetchChildren(pid, level, parentRow) {
     WAFData.authenticatedRequest(
