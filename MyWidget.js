@@ -123,9 +123,7 @@ define("hellow", [
 								if(baseUrl.endsWith('/enovia')) {
 									baseUrl = baseUrl.replace('/enovia', '');
 								}
-								if(baseUrl.indexOf('-space') !== -1) {
-									baseUrl = baseUrl.replace('-space', '-fedsearch');
-								}
+								
 								const getEngInstance = baseUrl + "/resources/v1/modeler/dseng:EngItem/" + pid + "/dseng:EngInstance";
 									WAFData.authenticatedRequest(
 									  getEngInstance, {
