@@ -1,0 +1,6 @@
+{
+    "name": "MyWidget",
+    "description": "Widget using DataGridView with drag-and-drop for Physical Products",
+    "requires": ["DS/DataGridView/DataGridView", "DS/WAFData/WAFData", "DS/PlatformAPI/PlatformAPI"],
+    "ui": "MyWidget.html"
+}
