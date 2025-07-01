@@ -66,7 +66,7 @@ define("hellow", [
 
   function createGrid(data) {
     if (grid) grid.destroy();
-
+	console.log("data:",data);
     grid = new DataGrid({
       className: 'uwa-table',
       columns: [
@@ -75,8 +75,9 @@ define("hellow", [
           text: '',
           width: 30,
           format: function (row) {
-            return row.hasChildren ? '<a class="expander" style="cursor:pointer">+</a>' : '';
-          }
+			  if (!row) return '';
+			  return row.hasChildren ? '<a class="expander" style="cursor:pointer">+</a>' : '';
+			}
         },
         { key: 'name', text: 'Name' },
         { key: 'type', text: 'Type' },
