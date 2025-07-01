@@ -62,7 +62,7 @@ define("hellow", [
 			};
             console.log("Dropped PhysicalProduct ID:", pid);
             rowsMap[pid] = rootRow;
-            fetchChildren(pid, 0, rootRow);
+            createGrid([rootRow]);
 
           } catch (e) {
             console.error("\u274c Failed to parse dropped data:", e);
@@ -86,7 +86,10 @@ define("hellow", [
 		  type: 'html',
           format: function (row) {
 			  if (!row) return '';
-			  return row.hasChildren ? '<a class="expander" style="cursor:pointer">+</a>' : '';
+			  if (row.hasChildren) {
+				return `<a class="expander" style="cursor:pointer">${row._expanded ? '−' : '+'}</a>`;
+			  }
+			  return '';
 			}
         },
         { 
