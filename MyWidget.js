@@ -104,68 +104,133 @@ define("hellow", [
 
   function fetchChildren(pid, level, parentRow) {
 	  i3DXCompassServices.getServiceUrl({
-					platformId: platformId,
-					serviceName: '3DSpace',
-					onComplete: function (URL3DSpace) {
-						let baseUrl = typeof URL3DSpace === "string" ? URL3DSpace : URL3DSpace[0].url;
-						if (baseUrl.endsWith('/3dspace')) {
-							baseUrl = baseUrl.replace('/3dspace', '');
+		platformId: widget.getValue("x3dPlatformId"),
+		serviceName: "3DSpace",
+		onComplete: function (URL3DSpace) {
+		  let baseUrl = typeof URL3DSpace === "string" ? URL3DSpace : URL3DSpace[0].url;
+		  if (baseUrl.endsWith("/3dspace")) baseUrl = baseUrl.replace("/3dspace", "");
+
+		  const csrfURL = baseUrl + "/resources/v1/application/CSRF";
+
+		  WAFData.authenticatedRequest(csrfURL, {
+			method: "GET",
+			type: "json",
+			onComplete: function (csrfData) {
+			  const csrfToken = csrfData.csrf.value;
+			  const csrfHeader = csrfData.csrf.name;
+
+			  const postUrl = baseUrl + "/cvservlet/progressiveexpand/v2?tenant=" + platformId + "&output_format=cvjson";
+
+			  const postData = {
+				batch: {
+				  expands: [{
+					aggregation_processors: [{
+					  truncate: {
+						max_distance_from_prefix: 1,
+						prefix_filter: {
+						  prefix_path: [{ physical_id_path: [pid] }]
 						}
-
-						const csrfURL = baseUrl + '/resources/v1/application/CSRF';
-
-						WAFData.authenticatedRequest(csrfURL, {
-							method: 'GET',
-							type: 'json',
-							onComplete: function (csrfData) {
-								const csrfToken = csrfData.csrf.value;
-								const csrfHeaderName = csrfData.csrf.name;
-								const getEngInstance = baseUrl + "/dseng:EngItem/" + pid + "/dseng:EngInstance";
-									WAFData.authenticatedRequest(
-									  getEngInstance, {
-										method: "GET",
-										type: "json",
-										headers: {
-											'Content-Type': 'application/json',
-											'SecurityContext': 'VPLMProjectLeader.Company Name.APTIV INDIA'
-										},
-										onComplete: function (resp) {
-										  if (!resp.children) return;
-										  var children = [];
-										  resp.children.forEach(child => {
-											const row = {
-											  id: child.id,
-											  name: child.name,
-											  type: child.type,
-											  created: child.created,
-											  level: level,
-											  hasChildren: true,
-											  parentId: parentRow ? parentRow.id : null
-											};
-											children.push(row);
-											rowsMap[child.id] = row;
-										  });
-
-										  if (parentRow) {
-											parentRow._expanded = true;
-											parentRow._children = children;
-											updateDataGrid();
-										  } else {
-											grid.setData(children);
-										  }
-										}
-									  });
-							},
-								onFailure: function (err) {
-									console.error("Failed to fetch CSRF token:", err);
+					  }
+					}],
+					filter: {
+					  and: {
+						filters: [
+						  {
+							prefix_filter: {
+							  prefix_path: [{ physical_id_path: [pid] }]
+							}
+						  },
+						  {
+							and: {
+							  filters: [{
+								sequence_filter: {
+								  sequence: [{
+									uql: '((flattenedtaxonomies:"reltypes/VPMInstance") OR (flattenedtaxonomies:"reltypes/VPMRepInstance") OR (flattenedtaxonomies:"reltypes/SpecificationDocument")) AND (NOT (ds6wg_58_synchroebomext_46_v_95_inebomuser:"FALSE"))'
+								  }]
 								}
-							});
+							  }]
+							}
+						  }
+						]
+					  }
 					},
-					onFailure: function () {
-						console.error("Failed to get 3DSpace URL");
+					graph: {
+					  descending_condition_object: {
+						uql: '(flattenedtaxonomies:"types/Drawing") OR ds6w_58_globaltype:"ds6w:Part" OR (flattenedtaxonomies:"types/Document") OR (flattenedtaxonomies:"types/CONTROLLED DOCUMENTS")'
+					  },
+					  descending_condition_relation: {
+						uql: 'NOT (flattenedtaxonomies:"reltypes/XCADBaseDependency") AND ((flattenedtaxonomies:"reltypes/VPMInstance") OR (flattenedtaxonomies:"reltypes/VPMRepInstance") OR (flattenedtaxonomies:"reltypes/SpecificationDocument"))'
+					  }
+					},
+					label: "expand-root-" + Date.now(),
+					root: {
+					  physical_id: pid
 					}
-				});
-  }
+				  }]
+				},
+				outputs: {
+				  format: "entity_relation_occurrence",
+				  select_object: ["ds6w:label", "ds6w:created", "type", "physicalid"],
+				  select_relation: ["ds6w:type", "type", "physicalid"]
+				}
+			  };
+
+			  WAFData.authenticatedRequest(postUrl, {
+				method: "POST",
+				type: "json",
+				headers: {
+				  "Content-Type": "application/json",
+				  'SecurityContext': 'VPLMProjectLeader.Company Name.APTIV INDIA',
+				  [csrfHeader]: csrfToken
+				},
+				data: JSON.stringify(postData),
+				onComplete: function (resp) {
+				  const children = [];
+				  const dataMap = resp; 
+
+				  for (const key in dataMap) {
+					if (dataMap.hasOwnProperty(key)) {
+					  const item = dataMap[key];
+					  if (item.physicalid !== pid) {
+						const row = {
+						  id: item.physicalid,
+						  name: item["ds6w:label"],
+						  type: item["type"],
+						  created: item["ds6w:created"],
+						  level: level,
+						  hasChildren: true,
+						  parentId: parentRow ? parentRow.id : null
+						};
+						children.push(row);
+						rowsMap[item.physicalid] = row;
+					  }
+					}
+				  }
+
+				  if (parentRow) {
+					parentRow._expanded = true;
+					parentRow._children = children;
+					updateDataGrid();
+				  } else {
+					grid.setData(children);
+				  }
+				},
+				onFailure: function (err) {
+				  console.error("Failed to fetch structure from progressiveexpand:", err);
+				}
+			  });
+			},
+			onFailure: function (err) {
+			  console.error("Failed to fetch CSRF token:", err);
+			}
+		  });
+		},
+		onFailure: function () {
+		  console.error("Failed to get 3DSpace URL");
+		}
+	  });
+	}
+
 
   function expandChildren(row) {
     if (!row._children) {
