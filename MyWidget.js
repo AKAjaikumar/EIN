@@ -87,6 +87,7 @@ define("hellow", [
 		  type: 'html',
           format: function (row) {
 			  if (!row) return '';
+			  console.log("row.hasChildren:",row.hasChildren);
 			  if (row.hasChildren) {
 				return `<a class="expander" style="cursor:pointer">${row._expanded ? '−' : '+'}</a>`;
 			  }
