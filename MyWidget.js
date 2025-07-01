@@ -77,7 +77,7 @@ define("hellow", [
 			
 			const parsed = typeof dropData === 'string' ? JSON.parse(dropData) : dropData;
 			
-			console.log("📦 Dropped Data:", parsed);
+			console.log("Dropped Data:", parsed);
 			
 			const engItem = parsed?.data?.items?.[0];
 			console.log("engItem:", engItem);
@@ -86,11 +86,11 @@ define("hellow", [
 			console.log("pid:", pid);
 
 			if (!pid) {
-			  console.warn("⚠️ No valid ID found in drop:", engItem);
+			  console.warn("No valid ID found in drop:", engItem);
 			  return;
 			}
 
-			console.log("✅ Dropped PhysicalProduct ID:", pid);
+			console.log("Dropped PhysicalProduct ID:", pid);
 			rowsMap = {};
 			fetchChildren(pid, 0, null);
 
@@ -127,6 +127,7 @@ define("hellow", [
 										type: "json",
 										headers: {
 											'Content-Type': 'application/json',
+											'SecurityContext': 'VPLMProjectLeader.Company Name.APTIV INDIA',
 											[csrfHeaderName]: csrfToken
 										},
 										onComplete: function (resp) {
