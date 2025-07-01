@@ -1,6 +1,6 @@
 define("hellow", ["UWA/Core",
   "UWA/Drivers/Alone",
-  "DS/DataGrid/DataGrid",
+  "DS/DataGridView/DataGridView",
   "DS/WAFData/WAFData",
   "DS/PlatformAPI/PlatformAPI"], function (Core, Alone, DataGridView, WAFData,PlatformAPI) {
 	    var myWidget = {
