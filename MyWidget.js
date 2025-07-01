@@ -58,7 +58,7 @@ define("hellow", [
 			  created: engItem?.created || new Date().toISOString(),
 			  level: 0,
 			  hasChildren: true,
-			  expander: true,
+			  expandcol: '',
 			  parentId: null
 			};
             console.log("Dropped PhysicalProduct ID:", pid);
@@ -85,13 +85,10 @@ define("hellow", [
           text: '',
           width: 30,
 		  type: 'html',
-          format: function (row) {
-			  if (!row) return '';
-			  console.log("row.hasChildren:",row.hasChildren);
-			  if (row.hasChildren) {
-				return `<a class="expander" style="cursor:pointer">${row._expanded ? '−' : '+'}</a>`;
-			  }
-			  return '';
+			format: function (row) {
+			  console.log("Formatting expander for row:", row);
+			  if (!row) return 'NO_ROW';
+			  return row.hasChildren ? `<a class="expander" style="cursor:pointer">[+]</a>` : '[–]';
 			}
         },
         { 
@@ -239,7 +236,7 @@ define("hellow", [
 						created: childObj["ds6w:created"],
 						level: level,
 						hasChildren: true, 
-						expander: true,
+						expandcol: '', 
 						parentId: parentRow ? parentRow.id : null
 					  };
 					  children.push(row);
