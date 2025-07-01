@@ -74,63 +74,63 @@ define("hellow", [
   };
 
   function createGrid(data) {
-    if (grid) grid.destroy();
-	console.log("data:",data);
-	console.log("Sample row:", data[0]);
-    grid = new DataGrid({
-      className: 'uwa-table',
-      columns: [
-        {
-          key: 'expandcol',
-          text: '',
-          width: 30,
-		  type: 'html',
-		  dataIndex: 'expanderHtml',
-		  format: function(val) {
-			return val || '';
-		  }
-        },
-        { 
-			key: 'name', 
-			text: 'Name', 
-			dataIndex: 'name' , 
-			format: function (val, row) {
-			  if (!row || typeof row.level !== 'number') return val || '';
-			  const indent = row.level * 20;
-			  return `<div style="margin-left:${indent}px">${val || ''}</div>`;
-			}
-		},
-        { key: 'type', text: 'Type', dataIndex: 'type' },
-        {
-          key: 'created',
-          text: 'Created On',
-		  dataIndex: 'created',
-          format: function (val, row) {
-			  if (!val && row && row.created) val = row.created;
-			  const d = new Date(val);
-			  return isNaN(d) ? '' : d.toLocaleDateString();
-		  }
+  if (grid) grid.destroy();
+
+  grid = new DataGrid({
+    className: 'uwa-table',
+    columns: [
+      {
+        key: 'expandcol',
+        text: '',
+        width: 30,
+        type: 'html',
+        dataIndex: 'expanderHtml',
+        format: function (val, row) {
+          return `<div class="expander" data-rowid="${row.id}" style="cursor:pointer">${row._expanded ? '−' : '+'}</div>`;
         }
-      ],
-      data: data
+      },
+      {
+        key: 'name',
+        text: 'Name',
+        dataIndex: 'name',
+        format: function (val, row) {
+          const indent = row.level * 20;
+          return `<div style="margin-left:${indent}px">${val || ''}</div>`;
+        }
+      },
+      { key: 'type', text: 'Type', dataIndex: 'type' },
+      {
+        key: 'created',
+        text: 'Created On',
+        dataIndex: 'created',
+        format: function (val, row) {
+          const d = new Date(val);
+          return isNaN(d) ? '' : d.toLocaleDateString();
+        }
+      }
+    ],
+    data: data
+  });
+
+  widget.body.empty();
+  grid.inject(widget.body);
+
+  // Attach click listener AFTER injecting the grid
+  widget.body.querySelectorAll('.expander').forEach(el => {
+    el.addEventListener('click', function (e) {
+      const rowId = e.target.dataset.rowid;
+      const row = rowsMap[rowId];
+
+      if (!row) return;
+      if (row._expanded) {
+        collapseChildren(row);
+      } else {
+        expandChildren(row);
+      }
     });
+  });
+}
 
-    grid.addEvent('onCellClick', function (cell, event) {
-	  if (cell.column.key === 'expandcol') {
-		const row = cell.data;
-		console.log("Expander clicked:", row);
-
-		if (row._expanded) {
-		  collapseChildren(row);
-		} else {
-		  expandChildren(row);
-		}
-	  }
-	});
-
-    widget.body.empty();
-    grid.inject(widget.body);
-  }
 
   function fetchChildren(pid, level, parentRow) {
 	  console.log("Fetched children for", pid, parentRow);
