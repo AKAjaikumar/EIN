@@ -54,7 +54,9 @@ define("hellow", [
 
       grid.inject(widget.body);
 
-      
+      PlatformAPI.subscribe('DS/DataDragAndDrop/dragEnter', function () {
+		  console.log("🟢 dragEnter received");
+		});
       DnD.setDnDTarget(widget.body, {
 		  acceptedTypes: ['VPMReference'], 
 		  drop: function (data) {
