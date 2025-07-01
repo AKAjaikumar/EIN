@@ -192,22 +192,34 @@ define("hellow", [
               data: JSON.stringify(postData),
               onComplete: function (resp) {
                 const children = [];
-                for (const key in resp) {
-                  const item = resp[key];
-                  if (item.physicalid !== pid) {
-                    const row = {
-                      id: item.physicalid,
-                      name: item["ds6w:label"],
-                      type: item["type"],
-                      created: item["ds6w:created"],
-                      level: level,
-                      hasChildren: true,
-                      parentId: parentRow ? parentRow.id : null
-                    };
-                    children.push(row);
-                    rowsMap[item.physicalid] = row;
-                  }
-                }
+				const results = resp.results || [];
+
+
+				const objectMap = {};
+				results.forEach(item => {
+				  if (item.type === "VPMReference") {
+					objectMap[item.resourceid] = item;
+				  }
+				});
+
+				results.forEach(item => {
+				  if (item.type === "VPMInstance" && item.from === pid) {
+					const childObj = objectMap[item.to];
+					if (childObj) {
+					  const row = {
+						id: childObj.resourceid,
+						name: childObj["ds6w:label"],
+						type: childObj["type"],
+						created: childObj["ds6w:created"],
+						level: level,
+						hasChildren: true, 
+						parentId: parentRow ? parentRow.id : null
+					  };
+					  children.push(row);
+					  rowsMap[childObj.resourceid] = row;
+					}
+				  }
+				});
 
                 if (parentRow) {
                   parentRow._expanded = true;
