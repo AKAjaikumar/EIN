@@ -115,20 +115,21 @@ define("hellow", [
   widget.body.empty();
   grid.inject(widget.body);
 
-  // Attach click listener AFTER injecting the grid
-  widget.body.querySelectorAll('.expander').forEach(el => {
-    el.addEventListener('click', function (e) {
-      const rowId = e.target.dataset.rowid;
-      const row = rowsMap[rowId];
+  widget.body.addEventListener('click', function (e) {
+	  if (e.target && e.target.classList.contains('expander')) {
+		const rowId = e.target.dataset.rowid;
+		const row = rowsMap[rowId];
+		if (!row) return;
 
-      if (!row) return;
-      if (row._expanded) {
-        collapseChildren(row);
-      } else {
-        expandChildren(row);
-      }
-    });
-  });
+		console.log("Expander clicked:", row);
+
+		if (row._expanded) {
+		  collapseChildren(row);
+		} else {
+		  expandChildren(row);
+		}
+	  }
+	});
 }
 
 
