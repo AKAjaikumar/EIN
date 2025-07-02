@@ -106,7 +106,7 @@ define("hellow", [
   });
 
   const addButton = UWA.createElement('button', {
-    text: 'Add EIN',
+    text: 'Set EIN',
     styles: {
       padding: '6px 12px',
       background: '#0073E6',
@@ -125,7 +125,8 @@ define("hellow", [
 
         const selectedData = Array.from(selectedCheckboxes).map(cb => {
           const rowId = cb.getAttribute('data-id');
-          const rowData = rowsMap[rowId];
+          const rowData = grid.getRowModel(rowId);
+		  if (!rowData) return null;
           return {
             name: rowData.name,
             quantity: rowData.quantity || "N/A",
