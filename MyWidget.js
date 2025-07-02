@@ -14,7 +14,9 @@ define("hellow", [
   var myWidget = {
     onLoadWidget: function () {
       widget.body.innerHTML = "";
+      console.log("widget loaded");
       platformId = widget.getValue("x3dPlatformId");
+      console.log("platformId:", platformId);
       widget.body.empty();
       widget.body.setStyle("border", "2px dashed #666");
       widget.body.setStyle("padding", "20px");
@@ -23,37 +25,45 @@ define("hellow", [
       createGrid([]);
 
       DataDnD.droppable(widget.body, {
-        enter: function (el) {
+        enter: function (el, event) {
           if (el && el.classList) el.classList.add("drag-over");
         },
-        over: function () { return true; },
-        leave: function (el) {
+        over: function (el, event) {
+          return true;
+        },
+        leave: function (el, event) {
           if (el && el.classList) el.classList.remove("drag-over");
         },
-        drop: function (dropData, el) {
+        drop: function (dropData, el, event) {
           if (el && el.classList) el.classList.remove("drag-over");
 
           try {
             const parsed = typeof dropData === 'string' ? JSON.parse(dropData) : dropData;
+            console.log("Dropped Data:", parsed);
+
             const engItem = parsed?.data?.items?.[0];
+            console.log("engItem:", engItem);
+
             const pid = engItem?.physicalId || engItem?.objectId || engItem?.id;
-            if (!pid) return;
+            console.log("pid:", pid);
 
-            const rootRow = {
-              id: pid,
-              name: engItem?.displayName || "Root",
-              type: engItem?.objectType || "VPMReference",
-              created: engItem?.created || new Date().toISOString(),
-              level: 0,
-              hasChildren: true,
-              parentId: null,
-              _expanded: false 
-            };
-
-            rowsMap = {}; 
-			console.log("Root row inserted", rootRow);
+            if (!pid) {
+              console.warn("No valid ID found in drop:", engItem);
+              return;
+            }
+			const rootRow = {
+			  id: pid,
+			  name: engItem?.displayName || "Root",
+			  type: engItem?.objectType || "VPMReference",
+			  created: engItem?.created || new Date().toISOString(),
+			  level: 0,
+			  hasChildren: true,
+			  expanderHtml: `<a class="expander" style="cursor:pointer">+</a>`,
+			  parentId: null
+			};
+            console.log("Dropped PhysicalProduct ID:", pid);
             rowsMap[pid] = rootRow;
-			updateDataGrid(); 
+            createGrid([rootRow]);
 
           } catch (e) {
             console.error("\u274c Failed to parse dropped data:", e);
@@ -64,71 +74,69 @@ define("hellow", [
   };
 
   function createGrid(data) {
-    if (grid) grid.destroy();
+  if (grid) grid.destroy();
 
-    grid = new DataGrid({
-      className: 'uwa-table',
-      columns: [
-        {
-          key: 'expandcol',
-		  text: '',
-		  width: 30,
-		  type: 'html',
-		  dataIndex: '',
-		  format: function (val, row) {
-			  console.log("Formatting expand icon for row:", row);
-			if (!row || typeof row !== 'object') {
-			  console.warn("Missing row in expand column format", { val, row });
-			  return '';
-			}
-			if (row.hasChildren === false) return '';
-			const symbol = row._expanded ? '−' : '+';
-			return `<div class="expander" data-rowid="${row.id}" style="cursor:pointer">${symbol}</div>`;
-		  }
-        },
-        {
-          key: 'name',
-          text: 'Name',
-          dataIndex: 'name',
-          format: function (val, row) {
-            const indent = (row && typeof row.level === 'number') ? row.level * 20 : 0;
-            return `<div style="margin-left:${indent}px">${val || ''}</div>`;
-          }
-        },
-        { key: 'type', text: 'Type', dataIndex: 'type' },
-        {
-          key: 'created',
-          text: 'Created On',
-          dataIndex: 'created',
-          format: function (val) {
-            const d = new Date(val);
-            return isNaN(d) ? '' : d.toLocaleDateString();
-          }
+  grid = new DataGrid({
+    className: 'uwa-table',
+    columns: [
+      {
+        key: 'expandcol',
+        text: '',
+        width: 30,
+        type: 'html',
+        dataIndex: '',
+        format: function (val, row) {
+          return `<div class="expander" data-rowid="${row.id}" style="cursor:pointer">${row._expanded ? '−' : '+'}</div>`;
         }
-      ],
-      data: data
-    });
-
-    widget.body.empty();
-    grid.inject(widget.body);
-
-    widget.body.addEventListener('click', function (e) {
-      const target = e.target;
-      if (target && target.classList.contains('expander')) {
-        const rowId = target.getAttribute('data-rowid');
-        const row = rowsMap[rowId];
-        if (!row) return;
-
-        if (row._expanded) {
-          collapseChildren(row);
-        } else {
-          expandChildren(row);
+      },
+      {
+        key: 'name',
+        text: 'Name',
+        dataIndex: 'name',
+        format: function (val, row) {
+          const indent = row.level * 20;
+          return `<div style="margin-left:${indent}px">${val || ''}</div>`;
+        }
+      },
+      { key: 'type', text: 'Type', dataIndex: 'type' },
+      {
+        key: 'created',
+        text: 'Created On',
+        dataIndex: 'created',
+        format: function (val, row) {
+          const d = new Date(val);
+          return isNaN(d) ? '' : d.toLocaleDateString();
         }
       }
-    });
+    ],
+    data: data
+  });
+
+  widget.body.empty();
+  grid.inject(widget.body);
+  widget.body.addEventListener('click', function (e) {
+  const target = e.target;
+  if (target && target.classList.contains('expander')) {
+    const rowId = target.getAttribute('data-rowid');
+    if (!rowId) return;
+
+    const row = rowsMap[rowId];
+    if (!row) return;
+
+    console.log("Expander clicked:", row);
+
+    if (row._expanded) {
+      collapseChildren(row);
+    } else {
+      expandChildren(row);
+    }
   }
+});
+}
+
 
   function fetchChildren(pid, level, parentRow) {
+	  console.log("Fetched children for", pid, parentRow);
     i3DXCompassServices.getServiceUrl({
       platformId: widget.getValue("x3dPlatformId"),
       serviceName: "3DSpace",
@@ -161,7 +169,11 @@ define("hellow", [
                   filter: {
                     and: {
                       filters: [
-                        { prefix_filter: { prefix_path: [{ physical_id_path: [pid] }] } },
+                        {
+                          prefix_filter: {
+                            prefix_path: [{ physical_id_path: [pid] }]
+                          }
+                        },
                         {
                           and: {
                             filters: [{
@@ -185,7 +197,9 @@ define("hellow", [
                     }
                   },
                   label: "expand-root-" + Date.now(),
-                  root: { physical_id: pid }
+                  root: {
+                    physical_id: pid
+                  }
                 }]
               },
               outputs: {
@@ -206,39 +220,42 @@ define("hellow", [
               data: JSON.stringify(postData),
               onComplete: function (resp) {
                 const children = [];
-                const results = resp.results || [];
-                const objectMap = {};
+				const results = resp.results || [];
 
-                results.forEach(item => {
-                  if (item.type === "VPMReference") {
-                    objectMap[item.resourceid] = item;
-                  }
-                });
 
-                results.forEach(item => {
-                  if (item.type === "VPMInstance" && item.from === pid) {
-                    const childObj = objectMap[item.to];
-                    if (childObj && childObj.resourceid) {
-                      const row = {
-                        id: childObj.resourceid,
-                        name: childObj["ds6w:label"],
-                        type: childObj["type"],
-                        created: childObj["ds6w:created"],
-                        level: level,
-                        hasChildren: true,
-                        parentId: parentRow ? parentRow.id : null,
-                        _expanded: false
-                      };
-                      children.push(row);
-                      rowsMap[childObj.resourceid] = row;
-                    }
-                  }
-                });
+				const objectMap = {};
+				results.forEach(item => {
+				  if (item.type === "VPMReference") {
+					objectMap[item.resourceid] = item;
+				  }
+				});
+
+				results.forEach(item => {
+				  if (item.type === "VPMInstance" && item.from === pid) {
+					const childObj = objectMap[item.to];
+					if (childObj) {
+					  const row = {
+						id: childObj.resourceid,
+						name: childObj["ds6w:label"],
+						type: childObj["type"],
+						created: childObj["ds6w:created"],
+						level: level,
+						hasChildren: true, 
+						expandcol: '', 
+						parentId: parentRow ? parentRow.id : null
+					  };
+					  children.push(row);
+					  rowsMap[childObj.resourceid] = row;
+					}
+				  }
+				});
 
                 if (parentRow) {
                   parentRow._expanded = true;
                   parentRow._children = children;
                   updateDataGrid();
+                } else {
+                  createGrid(children);
                 }
               },
               onFailure: function (err) {
@@ -272,23 +289,30 @@ define("hellow", [
   }
 
   function updateDataGrid() {
-    const result = [];
+  const result = [];
 
-    function addRowRecursive(row) {
-      if (!row || !row.id) return;
-      result.push(row);
-      if (row._expanded && row._children) {
-        row._children.forEach(addRowRecursive);
-      }
-    }
+  function addRowRecursive(row) {
+		if (row.hasChildren) {
+		  row.expanderHtml = `<div class="expander" data-rowid="${row.id || ''}" style="cursor:pointer">${row._expanded ? '−' : '+'}</div>`;
+		} else {
+		  row.expanderHtml = '';
+		}
 
-    for (let id in rowsMap) {
-      const row = rowsMap[id];
-      if (!row.parentId) addRowRecursive(row);
-    }
+		result.push(row);
 
-    createGrid(result);
-  }
+		if (row._expanded && row._children) {
+		  row._children.forEach(addRowRecursive);
+		}
+	  }
+
+	  for (let id in rowsMap) {
+		const row = rowsMap[id];
+		if (!row.parentId) addRowRecursive(row);
+	  }
+
+	  grid.update(result);
+}
+
 
   return myWidget;
 });
