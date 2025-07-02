@@ -13,7 +13,7 @@ define("hellow", [
 
   var myWidget = {
     onLoadWidget: function () {
-	  UWA.Utils.loadCSS('DS/UIKIT/UIKIT.css');
+	 loadUIKITCSS();
       widget.body.innerHTML = "";
       console.log("widget loaded");
       platformId = widget.getValue("x3dPlatformId");
@@ -369,7 +369,12 @@ define("hellow", [
 
  createGrid(result); 
 }
-
+function loadUIKITCSS() {
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "/webapps/UIKIT/UIKIT.css";
+  document.head.appendChild(link);
+}
 
 
   return myWidget;
