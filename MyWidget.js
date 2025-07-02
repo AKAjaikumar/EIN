@@ -207,7 +207,7 @@ define("hellow", [
 	const scrollContainer = UWA.createElement('div', {
 		class: 'grid-scroll-container'
 	});
-	scrollContainer.appendChild(grid.container); 
+	grid.inject(scrollContainer);
 	widget.body.appendChild(scrollContainer)
 	
 
