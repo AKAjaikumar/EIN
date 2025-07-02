@@ -88,6 +88,11 @@ define("hellow", [
     multiSelect: true,
     columns: [
       {
+      key: 'select',
+      type: 'selection',
+      width: 30
+	  },
+      {
         key: 'name',
         text: 'Name',
         dataIndex: 'name',
@@ -365,10 +370,10 @@ define("hellow", [
 }
 function injectRemoteUIKitCSS() {
 	
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = "/resources/"+widget.getValue("x3dPlatformId")+"/en/webapps/UIKIT/UIKIT.css";
-  document.head.appendChild(link);
+	  const link = document.createElement("link");
+	  link.rel = "stylesheet";
+	  link.href = "/resources/"+widget.getValue("x3dPlatformId")+"/en/webapps/UIKIT/UIKIT.css";
+	  document.head.appendChild(link);
 }
   return myWidget;
 });
