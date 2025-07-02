@@ -51,12 +51,16 @@ define("hellow", [
               console.warn("No valid ID found in drop:", engItem);
               return;
             }
+			
+			const partNumber = engItem["ds6wg:EnterpriseExtension.V_PartNumber"] ||
+              (engItem.attributes ? getAttributeValue(engItem.attributes, "ds6wg:EnterpriseExtension.V_PartNumber") : '');
 			const rootRow = {
 			  id: pid,
 			  name: engItem?.displayName || "Root",
 			  type: engItem?.objectType || "VPMReference",
 			  created: engItem?.created || new Date().toISOString(),
 			  level: 0,
+			  enterpriseItemNumber: partNumber,
 			  hasChildren: true,
 			  _expanded: false,
 			  parentId: null
