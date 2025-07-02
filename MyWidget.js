@@ -52,7 +52,8 @@ define("hellow", [
 
             rowsMap = {}; 
             rowsMap[pid] = rootRow;
-            createGrid([rootRow]);
+            createGrid([]);
+			updateDataGrid(); 
 
           } catch (e) {
             console.error("\u274c Failed to parse dropped data:", e);
