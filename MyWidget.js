@@ -58,7 +58,7 @@ define("hellow", [
 			  created: engItem?.created || new Date().toISOString(),
 			  level: 0,
 			  hasChildren: true,
-			  expanderHtml: `<a class="expander" style="cursor:pointer">+</a>`,
+			  _expanded: false,
 			  parentId: null
 			};
             console.log("Dropped PhysicalProduct ID:", pid);
@@ -86,8 +86,13 @@ define("hellow", [
         type: 'html',
         dataIndex: '',
         format: function (val, row) {
-          return `<div class="expander" data-rowid="${row.id}" style="cursor:pointer">${row._expanded ? '−' : '+'}</div>`;
-        }
+          if (!row || typeof row !== 'object') {
+			  console.warn('Row is undefined or not an object:', row);
+			  return '';
+			}
+			const symbol = row._expanded ? '−' : '+';
+			return `<div class="expander" data-rowid="${row.id}" style="cursor:pointer">${symbol}</div>`;
+		  }
       },
       {
         key: 'name',
