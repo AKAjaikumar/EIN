@@ -99,7 +99,7 @@ define("hellow", [
         text: 'Name',
         dataIndex: 'name',
         format: function (val, row) {
-          const indent = row.level * 20;
+           const indent = (row && typeof row.level === 'number') ? row.level * 20 : 0;
           return `<div style="margin-left:${indent}px">${val || ''}</div>`;
         }
       },
