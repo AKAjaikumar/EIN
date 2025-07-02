@@ -150,7 +150,7 @@ define("hellow", [
     columns: [
       {
         key: 'select',
-        text: '<input type="checkbox" id="select-all-checkbox" />',
+        text: '<input type="checkbox" class="row-selector" id="select-all-checkbox" />',
         width: 30,
         dataIndex: 'id',
         format: function (val, row) {
@@ -162,9 +162,8 @@ define("hellow", [
         text: 'Name',
         dataIndex: 'name',
         format: function (val, row) {
-          const indent = (row && typeof row.level === 'number') ? row.level * 20 : 0;
-          return `<div style="margin-left:${indent}px">${val || ''}</div>`;
-        }
+			return `<div>${val || ''}</div>`;
+		}
       },
       {
         key: 'structureLevel',
