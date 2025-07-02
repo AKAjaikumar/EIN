@@ -119,6 +119,11 @@ define("hellow", [
 		  return (typeof val === 'number') ? (val + 1).toString() : '';
 		}
 	  },
+	  {
+		key: 'enterpriseItemNumber',
+		text: 'Enterprise Item Number',
+		dataIndex: 'enterpriseItemNumber'
+	  },
       { key: 'type', text: 'Type', dataIndex: 'type' },
       {
         key: 'created',
@@ -225,7 +230,7 @@ define("hellow", [
               },
               outputs: {
                 format: "entity_relation_occurrence",
-                select_object: ["ds6w:label", "ds6w:created", "type", "physicalid"],
+                select_object: ["ds6w:label", "ds6w:created", "type", "physicalid","ds6wg:EnterpriseExtension.V_PartNumber"],
                 select_relation: ["ds6w:type", "type", "physicalid"]
               }
             };
@@ -261,6 +266,7 @@ define("hellow", [
 						type: childObj["type"],
 						created: childObj["ds6w:created"],
 						level: level,
+						enterpriseItemNumber: childObj["ds6wg:EnterpriseExtension.V_PartNumber"] || '',
 						hasChildren: true,
 						_expanded: true,
 						expandcol: '', 
