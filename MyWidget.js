@@ -125,7 +125,7 @@ define("hellow", [
 
         const selectedData = Array.from(selectedCheckboxes).map(cb => {
           const rowId = cb.getAttribute('data-id');
-          const rowData = grid.getRowModel(rowId);
+          const rowData = rowsMap[rowId];
           if (!rowData) return null;
           return {
             name: rowData.name,
