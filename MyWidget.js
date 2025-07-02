@@ -248,10 +248,13 @@ define("hellow", [
 				const results = resp.results || [];
 
 				const rootObj = results.find(item => item.resourceid === pid && item.type === "VPMReference");
+				console.log("rootObj:"+rootObj);
+				console.log("rowsMap[pid]:"+rowsMap[pid]);
+				console.log("pid:"+pid);
 				if (rootObj && !rowsMap[pid]) {
 				  const rootPartNumber = rootObj["ds6wg:EnterpriseExtension.V_PartNumber"]
 					|| (rootObj.attributes ? getAttributeValue(rootObj.attributes, "ds6wg:EnterpriseExtension.V_PartNumber") : '');
-
+					console.log("rootPartNumber:"+rootPartNumber);
 				  const rootRow = {
 					id: rootObj.resourceid,
 					name: rootObj["ds6w:label"] || "Root",
