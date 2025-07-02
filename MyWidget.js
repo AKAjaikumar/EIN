@@ -137,9 +137,12 @@ define("hellow", [
 setTimeout(() => {
     const selectAllCheckbox = document.getElementById('select-all-checkbox');
     if (selectAllCheckbox) {
-      
+      selectAllCheckbox.addEventListener('change', function () {
+        const checkboxes = widget.body.querySelectorAll('.row-selector');
+        checkboxes.forEach(cb => cb.checked = selectAllCheckbox.checked);
+      });
     }
-  }, 100);
+  }, 300);
 }
 
 
