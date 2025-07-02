@@ -171,16 +171,7 @@ define("hellow", [
         text: 'Enterprise Item Number',
         dataIndex: 'enterpriseItemNumber'
       },
-      { key: 'type', text: 'Type', dataIndex: 'type' },
-      {
-        key: 'created',
-        text: 'Created On',
-        dataIndex: 'created',
-        format: function (val) {
-          const d = new Date(val);
-          return isNaN(d) ? '' : d.toLocaleDateString();
-        }
-      }
+      { key: 'maturityState', text: 'Maturity State', dataIndex: 'maturityState' }
     ],
     data: data
   });
@@ -269,7 +260,7 @@ define("hellow", [
               },
               outputs: {
                 format: "entity_relation_occurrence",
-                select_object: ["ds6w:label", "ds6w:created", "type", "physicalid","ds6wg:EnterpriseExtension.V_PartNumber"],
+                select_object: ["ds6w:label", "ds6w:created", "type", "physicalid","ds6wg:EnterpriseExtension.V_PartNumber","ds6w:status"],
                 select_relation: ["ds6w:type", "type", "physicalid"]
               }
             };
@@ -308,6 +299,7 @@ define("hellow", [
 					  created: rootObj["ds6w:created"] || new Date().toISOString(),
 					  level: 0,
 					  enterpriseItemNumber: rootPartNumber,
+					  maturityState: rootObj["ds6w:status"] ,
 					  hasChildren: true,
 					  _expanded: true,
 					  expandcol: '',
@@ -338,6 +330,7 @@ define("hellow", [
 						created: childObj["ds6w:created"],
 						level: level,
 						enterpriseItemNumber: partNumber,
+						maturityState: childObj["ds6w:status"] ,
 						hasChildren: true,
 						_expanded: true,
 						expandcol: '', 
