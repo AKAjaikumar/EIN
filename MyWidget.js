@@ -88,11 +88,6 @@ define("hellow", [
     multiSelect: true,
     columns: [
       {
-      key: 'select',
-      type: 'selection',
-      width: 30
-	  },
-      {
         key: 'name',
         text: 'Name',
         dataIndex: 'name',
