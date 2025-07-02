@@ -73,14 +73,14 @@ define("hellow", [
           key: 'expandcol',
 		  text: '',
 		  width: 30,
-		  type: 'custom',
-		  format: function (val, row, options) {
-			// Fallback check
+		  type: 'html',
+		  format: function (val, row) {
+			  console.log("Formatting expand icon for row:", row);
 			if (!row || typeof row !== 'object') {
-			  console.warn("Missing row in expand column format", { val, row, options });
+			  console.warn("Missing row in expand column format", { val, row });
 			  return '';
 			}
-
+			if (row.hasChildren === false) return '';
 			const symbol = row._expanded ? '−' : '+';
 			return `<div class="expander" data-rowid="${row.id}" style="cursor:pointer">${symbol}</div>`;
 		  }
