@@ -51,8 +51,8 @@ define("hellow", [
             };
 
             rowsMap = {}; 
+			console.log("Root row inserted", rootRow);
             rowsMap[pid] = rootRow;
-            createGrid([]);
 			updateDataGrid(); 
 
           } catch (e) {
@@ -76,6 +76,7 @@ define("hellow", [
           type: 'html',
           dataIndex: '',
           format: function (val, row) {
+			  console.log("Expand format for row:", row);
 			  if (!row || !row.id || row.hasChildren === false) return '';
 			  const symbol = row._expanded ? '−' : '+';
 			  return `<div class="expander" data-rowid="${row.id}" style="cursor:pointer">${symbol}</div>`;
