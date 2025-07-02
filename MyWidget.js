@@ -142,21 +142,6 @@ define("hellow", [
   toolbar.appendChild(addButton);
   widget.body.appendChild(toolbar); 
 
-  const scrollContainer = UWA.createElement('div', {
-	  class: 'grid-scroll-container',
-	  styles: {
-		height: '400px',        
-		overflowY: 'auto',
-		overflowX: 'hidden',
-		border: '1px solid #ccc',
-		padding: '0px',
-		background: '#fff'
-	  }
-	});
-
-
-	
-	
   grid = new DataGrid({
     className: 'uwa-table',
     selectable: true,
@@ -218,8 +203,11 @@ define("hellow", [
     data: data
   });
 
-  grid.inject(scrollContainer);
-  widget.body.appendChild(scrollContainer)
+	const scrollContainer = UWA.createElement('div', {
+		class: 'grid-scroll-container'
+	});
+	scrollContainer.appendChild(grid.container); 
+	widget.body.appendChild(scrollContainer)
 	
 
   setTimeout(() => {
@@ -459,7 +447,7 @@ function injectRemoteUIKitCSS() {
 				const style = document.createElement("style");
 					style.textContent = `
 					.grid-scroll-container {
-					  height: 400px;
+					  max-height: 400px;
 					  overflow-y: auto;
 					  overflow-x: hidden;
 					}
@@ -469,24 +457,22 @@ function injectRemoteUIKitCSS() {
 					  border-collapse: collapse;
 					}
 
-					/* Sticky header */
+					/* Header should NOT be sticky */
 					.uwa-table thead th {
-					  position: sticky;
-					  top: 0;
+					  position: relative;
 					  background: #d3d3d3;
-					  z-index: 2;
+					  z-index: 1;
 					  text-align: left;
 					  vertical-align: middle;
 					  padding: 8px;
 					}
 
-					/* Center align ONLY the first (checkbox) header */
 					.uwa-table thead th:first-child {
 					  text-align: center;
 					  width: 40px;
 					}
 
-					/* Data cell alignment */
+					/* Data cells */
 					.uwa-table td {
 					  text-align: left !important;
 					  vertical-align: middle;
@@ -494,7 +480,6 @@ function injectRemoteUIKitCSS() {
 					  border: 1px solid #ddd;
 					}
 
-					/* Only center align the first column cells (checkboxes) */
 					.uwa-table td:first-child {
 					  text-align: center;
 					}
@@ -505,15 +490,7 @@ function injectRemoteUIKitCSS() {
 					  cursor: pointer;
 					}
 
-					.status-badge {
-					  display: inline-block;
-					  padding: 4px 8px;
-					  border-radius: 4px;
-					  font-size: 12px;
-					  color: white;
-					  font-weight: bold;
-					}
-
+					/* Row striping */
 					.uwa-table .dataRow:nth-child(even) {
 					  background-color: #f5f5f5;
 					}
