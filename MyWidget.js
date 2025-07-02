@@ -52,26 +52,24 @@ define("hellow", [
               return;
             }
 			
-			const partNumber = engItem["ds6wg:EnterpriseExtension.V_PartNumber"] ||
-              (engItem.attributes ? getAttributeValue(engItem.attributes, "ds6wg:EnterpriseExtension.V_PartNumber") : '');
-			const rootRow = {
-			  id: pid,
-			  name: engItem?.displayName || "Root",
-			  type: engItem?.objectType || "VPMReference",
-			  created: engItem?.created || new Date().toISOString(),
-			  level: 0,
-			  enterpriseItemNumber: partNumber,
-			  hasChildren: true,
-			  _expanded: false,
-			  parentId: null
-			};
-            console.log("Dropped PhysicalProduct ID:", pid);
-			rowsMap[pid] = rootRow;
-            createGrid([]);
-			
-			fetchChildren(pid, 1, rootRow, function () {
-			  updateDataGrid(); 
-			});
+			fetchRootDetails(pid, function (partNumber) {
+              const rootRow = {
+                id: pid,
+                name: engItem?.displayName || "Root",
+                type: engItem?.objectType || "VPMReference",
+                created: engItem?.created || new Date().toISOString(),
+                level: 0,
+                enterpriseItemNumber: partNumber,
+                hasChildren: true,
+                _expanded: false,
+                parentId: null
+              };
+              rowsMap[pid] = rootRow;
+              createGrid([]);
+              fetchChildren(pid, 1, rootRow, function () {
+                updateDataGrid();
+              });
+            });
 
 
           } catch (e) {
@@ -81,7 +79,59 @@ define("hellow", [
       });
     }
   };
+	function fetchRootDetails(pid, callback) {
+    i3DXCompassServices.getServiceUrl({
+      platformId: widget.getValue("x3dPlatformId"),
+      serviceName: "3DSpace",
+      onComplete: function (URL3DSpace) {
+        let baseUrl = typeof URL3DSpace === "string" ? URL3DSpace : URL3DSpace[0].url;
+        if (baseUrl.endsWith("/3dspace")) baseUrl = baseUrl.replace("/3dspace", "");
+        const csrfURL = baseUrl + "/resources/v1/application/CSRF";
 
+        WAFData.authenticatedRequest(csrfURL, {
+          method: "GET",
+          type: "json",
+          onComplete: function (csrfData) {
+            const csrfToken = csrfData.csrf.value;
+            const csrfHeader = csrfData.csrf.name;
+            const postUrl = baseUrl + "/cvservlet/progressiveexpand/v2?tenant=" + platformId + "&output_format=cvjson";
+
+            const postData = {
+              batch: {
+                expands: [{
+                  label: "rootOnly",
+                  root: { physical_id: pid }
+                }]
+              },
+              outputs: {
+                format: "entity_relation_occurrence",
+                select_object: ["ds6wg:EnterpriseExtension.V_PartNumber"],
+                select_relation: []
+              }
+            };
+
+            WAFData.authenticatedRequest(postUrl, {
+              method: "POST",
+              type: "json",
+              headers: {
+                "Content-Type": "application/json",
+                'SecurityContext': 'VPLMProjectLeader.Company Name.APTIV INDIA',
+                [csrfHeader]: csrfToken
+              },
+              data: JSON.stringify(postData),
+              onComplete: function (resp) {
+                const partNumber = (resp?.results || []).find(r => r.resourceid === pid)?.["ds6wg:EnterpriseExtension.V_PartNumber"] || "";
+                callback(partNumber);
+              },
+              onFailure: function () {
+                callback('');
+              }
+            });
+          }
+        });
+      }
+    });
+  }
   function createGrid(data) {
   if (grid) grid.destroy();
 
