@@ -3,7 +3,7 @@ define("hellow", [
   "UWA/Drivers/Alone",
   "DS/WAFData/WAFData",
   "DS/PlatformAPI/PlatformAPI",
-  "UWA/Controls/DataGrid",
+  "DS/DataGridView/DataGridView",
   "DS/DataDragAndDrop/DataDragAndDrop",
   "DS/i3DXCompassServices/i3DXCompassServices"
 ], function (Core, Alone, WAFData, PlatformAPI, DataGrid, DataDnD, i3DXCompassServices) {
@@ -312,11 +312,7 @@ define("hellow", [
     if (!row.parentId) addRowRecursive(row);
   });
 
-  if (grid && typeof grid.setData === 'function') {
-    grid.setData(result);
-  } else {
-    console.error("grid.setData is not a function");
-  }
+ createGrid(result); 
 }
 
 
