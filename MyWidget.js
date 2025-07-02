@@ -41,34 +41,39 @@ define("hellow", [
             const parsed = typeof dropData === 'string' ? JSON.parse(dropData) : dropData;
             console.log("Dropped Data:", parsed);
 
-            const engItem = parsed?.data?.items?.[0];
+            const items = parsed?.data?.items?.[0];
             console.log("engItem:", engItem);
+			if (!items.length) {
+			  console.warn("No items in dropData");
+			  return;
+			}
+			items.forEach(engItem => {
+			  const pid = engItem?.physicalId || engItem?.objectId || engItem?.id;
+			  if (!pid) return;
 
-            const pid = engItem?.physicalId || engItem?.objectId || engItem?.id;
-            console.log("pid:", pid);
+			  if (rowsMap[pid]) return;
 
-            if (!pid) {
-              console.warn("No valid ID found in drop:", engItem);
-              return;
-            }
+			  const rootRow = {
+				id: pid,
+				name: engItem?.displayName || "Root",
+				type: engItem?.objectType || "VPMReference",
+				created: engItem?.created || new Date().toISOString(),
+				level: 0,
+				enterpriseItemNumber: '',
+				hasChildren: true,
+				_expanded: false,
+				parentId: null
+			  };
 
-			const rootRow = {
-			  id: pid,
-			  name: engItem?.displayName || "Root",
-			  type: engItem?.objectType || "VPMReference",
-			  created: engItem?.created || new Date().toISOString(),
-			  level: 0,
-			  hasChildren: true,
-			  _expanded: false,
-			  parentId: null
-			};
-            console.log("Dropped PhysicalProduct ID:", pid);
-			rowsMap[pid] = rootRow;
-            createGrid([]);
-			
-			fetchChildren(pid, 1, rootRow, function () {
-			  updateDataGrid(); 
+			  rowsMap[pid] = rootRow;
+
+			  
+			  fetchChildren(pid, 1, rootRow, function () {
+				updateDataGrid(); 
+			  });
 			});
+
+			updateDataGrid();
 
 
           } catch (e) {
