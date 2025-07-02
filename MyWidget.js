@@ -215,9 +215,7 @@ define("hellow", [
                     }
                   },
                   graph: {
-                    descending_condition_object: {
-                      uql: '*'
-                    },
+                   
                     descending_condition_relation: {
                       uql: 'NOT (flattenedtaxonomies:"reltypes/XCADBaseDependency") AND ((flattenedtaxonomies:"reltypes/VPMInstance") OR (flattenedtaxonomies:"reltypes/VPMRepInstance") OR (flattenedtaxonomies:"reltypes/SpecificationDocument"))'
                     }
