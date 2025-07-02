@@ -71,15 +71,19 @@ define("hellow", [
       columns: [
         {
           key: 'expandcol',
-          text: '',
-          width: 30,
-          type: 'custom',
-          format: function (val, row) {
-			  console.log("Expand format for row:", row);
-			  if (!row || !row.id || row.hasChildren === false) return '';
-			  const symbol = row._expanded ? '−' : '+';
-			  return `<div class="expander" data-rowid="${row.id}" style="cursor:pointer">${symbol}</div>`;
+		  text: '',
+		  width: 30,
+		  type: 'custom',
+		  format: function (val, row, options) {
+			// Fallback check
+			if (!row || typeof row !== 'object') {
+			  console.warn("Missing row in expand column format", { val, row, options });
+			  return '';
 			}
+
+			const symbol = row._expanded ? '−' : '+';
+			return `<div class="expander" data-rowid="${row.id}" style="cursor:pointer">${symbol}</div>`;
+		  }
         },
         {
           key: 'name',
