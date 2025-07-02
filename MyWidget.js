@@ -260,13 +260,16 @@ define("hellow", [
 				  if (item.type === "VPMInstance" && item.from === pid) {
 					const childObj = objectMap[item.to];
 					if (childObj) {
+					const partNumber = childObj["ds6wg:EnterpriseExtension.V_PartNumber"]
+								|| (childObj.attributes ? getAttributeValue(childObj.attributes, "ds6wg:EnterpriseExtension.V_PartNumber") : '');
+						console.log("partNumber=="+partNumber);
 					  const row = {
 						id: childObj.resourceid,
 						name: childObj["ds6w:label"],
 						type: childObj["type"],
 						created: childObj["ds6w:created"],
 						level: level,
-						enterpriseItemNumber: childObj["ds6wg:EnterpriseExtension.V_PartNumber"] || '',
+						enterpriseItemNumber: partNumber,
 						hasChildren: true,
 						_expanded: true,
 						expandcol: '', 
@@ -310,7 +313,14 @@ define("hellow", [
       }
     });
   }
-
+  function getAttributeValue(attributesArray, attrName) {
+	  for (let i = 0; i < attributesArray.length; i++) {
+		if (attributesArray[i].name === attrName) {
+		  return attributesArray[i].value;
+		}
+	  }
+	  return '';
+	}
   function expandChildren(row) {
     if (!row._children) {
       fetchChildren(row.id, row.level + 1, row);
