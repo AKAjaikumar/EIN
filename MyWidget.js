@@ -255,23 +255,27 @@ define("hellow", [
 				  const rootPartNumber = rootObj["ds6wg:EnterpriseExtension.V_PartNumber"]
 					|| (rootObj.attributes ? getAttributeValue(rootObj.attributes, "ds6wg:EnterpriseExtension.V_PartNumber") : '');
 					console.log("rootPartNumber:"+rootPartNumber);
-				  const rootRow = {
-					id: rootObj.resourceid,
-					name: rootObj["ds6w:label"] || "Root",
-					type: rootObj["type"] || "VPMReference",
-					created: rootObj["ds6w:created"] || new Date().toISOString(),
-					level: 0,
-					enterpriseItemNumber: rootPartNumber,
-					hasChildren: true,
-					_expanded: true,
-					expandcol: '',
-					parentId: null
-				  };
-
-				  rowsMap[rootObj.resourceid] = rootRow;
-				  parentRow = rootRow; 
-				  parentRow.enterpriseItemNumber = rootPartNumber;
+					if (rowsMap[pid]) {
+   
 					rowsMap[pid].enterpriseItemNumber = rootPartNumber;
+					parentRow = rowsMap[pid];
+					} else {
+				   
+					const rootRow = {
+					  id: rootObj.resourceid,
+					  name: rootObj["ds6w:label"] || "Root",
+					  type: rootObj["type"] || "VPMReference",
+					  created: rootObj["ds6w:created"] || new Date().toISOString(),
+					  level: 0,
+					  enterpriseItemNumber: rootPartNumber,
+					  hasChildren: true,
+					  _expanded: true,
+					  expandcol: '',
+					  parentId: null
+					};
+					rowsMap[rootObj.resourceid] = rootRow;
+					parentRow = rootRow;
+				  }
 				}
 				const objectMap = {};
 				results.forEach(item => {
