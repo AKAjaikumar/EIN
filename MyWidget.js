@@ -90,9 +90,9 @@ define("hellow", [
   function createGrid(data) {
   if (grid) grid.destroy();
 
-  widget.body.empty(); 
+  widget.body.empty();
 
-
+  // Toolbar
   const toolbar = UWA.createElement('div', {
     class: 'toolbar',
     styles: {
@@ -126,13 +126,13 @@ define("hellow", [
         const selectedData = Array.from(selectedCheckboxes).map(cb => {
           const rowId = cb.getAttribute('data-id');
           const rowData = grid.getRowModel(rowId);
-		  if (!rowData) return null;
+          if (!rowData) return null;
           return {
             name: rowData.name,
             quantity: rowData.quantity || "N/A",
             partNumber: rowData.enterpriseItemNumber || ''
           };
-        });
+        }).filter(Boolean); // remove nulls
 
         console.log("Selected EINs:", selectedData);
         alert("Selected:\n" + selectedData.map(d => `Name: ${d.name}, EIN: ${d.partNumber}`).join("\n"));
@@ -141,8 +141,22 @@ define("hellow", [
   });
 
   toolbar.appendChild(addButton);
-  widget.body.appendChild(toolbar); 
+  widget.body.appendChild(toolbar);
 
+  // Create scroll container before injecting
+  const scrollContainer = UWA.createElement('div', {
+    class: 'grid-scroll-container',
+    styles: {
+      height: '400px',
+      overflowY: 'auto',
+      overflowX: 'hidden',
+      border: '1px solid #ccc'
+    }
+  });
+
+  widget.body.appendChild(scrollContainer); // Attach scroll container first
+
+  // Now create the DataGrid
   grid = new DataGrid({
     className: 'uwa-table',
     selectable: true,
@@ -153,7 +167,7 @@ define("hellow", [
         text: '<input type="checkbox" class="row-selector" id="select-all-checkbox" />',
         width: 30,
         dataIndex: 'id',
-        format: function (val, row) {
+        format: function (val) {
           return `<input type="checkbox" class="row-selector" data-id="${val}" />`;
         }
       },
@@ -161,56 +175,43 @@ define("hellow", [
         key: 'name',
         text: 'Name',
         dataIndex: 'name',
-        format: function (val, row) {
-			return `<div>${val || ''}</div>`;
-		}
+        format: val => `<div>${val || ''}</div>`
       },
       {
         key: 'structureLevel',
         text: 'Structure Level',
         dataIndex: 'level',
-        format: function (val) {
-          return (typeof val === 'number') ? (val + 1).toString() : '';
-        }
+        format: val => (typeof val === 'number') ? (val + 1).toString() : ''
       },
       {
         key: 'enterpriseItemNumber',
         text: 'Enterprise Item Number',
         dataIndex: 'enterpriseItemNumber'
       },
-      { key: 'maturityState', text: 'Maturity State', dataIndex: 'maturityState', 
-		format: function (val) {
-			const state = val?.split('.').pop() || '';
-
-			const colorMap = {
-			  'FROZEN': '#008000', // Green
-			  'IN_WORK': '#0073E6', // Blue
-			  'RELEASED': '#FFA500', // Orange
-			  'OBSOLETE': '#8B0000'  // Dark Red
-			};
-
-			const bgColor = colorMap[state.toUpperCase()] || '#777';
-			return `<span style="
-			  display: inline-block;
-			  padding: 4px 8px;
-			  background-color: ${bgColor};
-			  color: white;
-			  border-radius: 4px;
-			  font-size: 12px;
-			">${state.replace(/_/g, ' ')}</span>`;
-		 } 
-	  }
+      {
+        key: 'maturityState',
+        text: 'Maturity State',
+        dataIndex: 'maturityState',
+        format: function (val) {
+          const state = val?.split('.').pop() || '';
+          const colorMap = {
+            'FROZEN': '#008000',
+            'IN_WORK': '#0073E6',
+            'RELEASED': '#FFA500',
+            'OBSOLETE': '#8B0000'
+          };
+          const bgColor = colorMap[state.toUpperCase()] || '#777';
+          return `<span style="display:inline-block;padding:4px 8px;background-color:${bgColor};color:white;border-radius:4px;font-size:12px;">${state.replace(/_/g, ' ')}</span>`;
+        }
+      }
     ],
     data: data
   });
 
-	const scrollContainer = UWA.createElement('div', {
-		class: 'grid-scroll-container'
-	});
-	grid.inject(scrollContainer);
-	widget.body.appendChild(scrollContainer)
-	
+  // Inject DataGrid into scrollable container
+  grid.inject(scrollContainer);
 
+  // Setup checkbox sync
   setTimeout(() => {
     const selectAllCheckbox = document.getElementById('select-all-checkbox');
     if (selectAllCheckbox) {
@@ -221,6 +222,7 @@ define("hellow", [
     }
   }, 300);
 }
+
 
 
 
