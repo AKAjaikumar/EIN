@@ -62,8 +62,9 @@ define("hellow", [
 			  parentId: null
 			};
             console.log("Dropped PhysicalProduct ID:", pid);
-            createGrid([]);
 			rowsMap[pid] = rootRow;
+            createGrid([]);
+			
 			updateDataGrid();
 
 
