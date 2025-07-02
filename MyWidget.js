@@ -142,7 +142,22 @@ define("hellow", [
   toolbar.appendChild(addButton);
   widget.body.appendChild(toolbar); 
 
+  const scrollContainer = UWA.createElement('div', {
+	  class: 'grid-scroll-container',
+	  styles: {
+		height: '400px',        
+		overflowY: 'auto',
+		overflowX: 'hidden',
+		border: '1px solid #ccc',
+		padding: '0px',
+		background: '#fff'
+	  }
+	});
 
+
+	grid.inject(scrollContainer);
+	widget.body.appendChild(scrollContainer);
+	
   grid = new DataGrid({
     className: 'uwa-table',
     selectable: true,
@@ -444,6 +459,21 @@ define("hellow", [
 function injectRemoteUIKitCSS() {
 				const style = document.createElement("style");
 				style.textContent = `
+				.grid-scroll-container {
+						height: 400px;
+						overflow-y: auto;
+						overflow-x: hidden;
+					  }
+
+					  .uwa-table {
+						width: 100%;
+						border-collapse: collapse;
+					  }
+
+					  .uwa-table td, .uwa-table th {
+						padding: 8px;
+						border: 1px solid #ddd;
+					  }
 				  /* Header style */
 				  .uwa-table thead th {
 					text-align: left;             /* Default left for all */
