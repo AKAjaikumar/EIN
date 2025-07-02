@@ -261,30 +261,23 @@ define("hellow", [
 				  }
 				});
 
-                if (parentRow) {
-				  parentRow._expanded = true;
-				  parentRow._children = children;
+                parentRow._children = children;
+              parentRow._expanded = true;
 
-				  
-				  let pending = children.length;
-				  if (pending === 0) {
-					updateDataGrid();
-				  } else {
-					children.forEach(child => {
-					  fetchChildren(child.id, child.level + 1, child);
-					  pending--;
-					});
-				  }
-				} else {
-				  rowsMap[pid]._children = children;
-				  rowsMap[pid]._expanded = true;
-
-				  children.forEach(child => {
-					fetchChildren(child.id, 1, rowsMap[pid]); 
-				  });
-
-				  updateDataGrid();
-				}
+              // Recursive expansion with counter
+              let remaining = children.length;
+              if (remaining === 0) {
+                callback && callback();
+              } else {
+                children.forEach(child => {
+                  fetchChildren(child.id, child.level + 1, child, function () {
+                    remaining--;
+                    if (remaining === 0) {
+                      callback && callback();
+                    }
+                  });
+                });
+              }
               },
               onFailure: function (err) {
                 console.error("Failed to fetch structure from progressiveexpand:", err);
