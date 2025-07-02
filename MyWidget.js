@@ -84,6 +84,8 @@ define("hellow", [
 
   grid = new DataGrid({
     className: 'uwa-table',
+	selectable: true,
+    multiSelect: true,
     columns: [
       {
         key: 'expandcol',
