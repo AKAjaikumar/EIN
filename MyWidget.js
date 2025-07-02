@@ -219,8 +219,7 @@ define("hellow", [
   });
 
   grid.inject(scrollContainer);
-	widget.body.appendChild(scrollContainer);
-  grid.inject(widget.body);
+  widget.body.appendChild(scrollContainer)
 	
 
   setTimeout(() => {
@@ -458,71 +457,73 @@ define("hellow", [
 }
 function injectRemoteUIKitCSS() {
 				const style = document.createElement("style");
-				style.textContent = `
-				.grid-scroll-container {
-						height: 400px;
-						overflow-y: auto;
-						overflow-x: hidden;
-					  }
+					style.textContent = `
+					.grid-scroll-container {
+					  height: 400px;
+					  overflow-y: auto;
+					  overflow-x: hidden;
+					}
 
-					  .uwa-table {
-						width: 100%;
-						border-collapse: collapse;
-					  }
+					.uwa-table {
+					  width: 100%;
+					  border-collapse: collapse;
+					}
 
-					  .uwa-table td, .uwa-table th {
-						padding: 8px;
-						border: 1px solid #ddd;
-					  }
-				  /* Header style */
-				  .uwa-table thead th {
-					text-align: left;             /* Default left for all */
-					vertical-align: middle;
-				  }
+					/* Sticky header */
+					.uwa-table thead th {
+					  position: sticky;
+					  top: 0;
+					  background: #d3d3d3;
+					  z-index: 2;
+					  text-align: left;
+					  vertical-align: middle;
+					  padding: 8px;
+					}
 
-				  /* Center align ONLY the first (checkbox) header */
-				  .uwa-table thead th:first-child {
-					text-align: center;
-					width: 40px;
-				  }
+					/* Center align ONLY the first (checkbox) header */
+					.uwa-table thead th:first-child {
+					  text-align: center;
+					  width: 40px;
+					}
 
-				  /* Data cell alignment */
-				  .uwa-table td {
-					text-align: left !important;
-					vertical-align: middle;
-					padding: 6px 10px;
-					border: 1px solid #ddd;
-				  }
+					/* Data cell alignment */
+					.uwa-table td {
+					  text-align: left !important;
+					  vertical-align: middle;
+					  padding: 6px 10px;
+					  border: 1px solid #ddd;
+					}
 
-				  /* Only center align the first column cells (checkboxes) */
-				  .uwa-table td:first-child {
-					text-align: center;
-				  }
+					/* Only center align the first column cells (checkboxes) */
+					.uwa-table td:first-child {
+					  text-align: center;
+					}
 
-				  .uwa-table input[type="checkbox"] {
-					width: 16px;
-					height: 16px;
-					cursor: pointer;
-				  }
+					.uwa-table input[type="checkbox"] {
+					  width: 16px;
+					  height: 16px;
+					  cursor: pointer;
+					}
 
-				  .status-badge {
-					display: inline-block;
-					padding: 4px 8px;
-					border-radius: 4px;
-					font-size: 12px;
-					color: white;
-					font-weight: bold;
-				  }
+					.status-badge {
+					  display: inline-block;
+					  padding: 4px 8px;
+					  border-radius: 4px;
+					  font-size: 12px;
+					  color: white;
+					  font-weight: bold;
+					}
 
-				  .uwa-table .dataRow:nth-child(even) {
-					background-color: #f5f5f5;
-				  }
+					.uwa-table .dataRow:nth-child(even) {
+					  background-color: #f5f5f5;
+					}
 
-				  .uwa-table .dataRow:nth-child(odd) {
-					background-color: #ffffff;
-				  }
-				`;
-				document.head.appendChild(style);
+					.uwa-table .dataRow:nth-child(odd) {
+					  background-color: #ffffff;
+					}
+					`;
+					document.head.appendChild(style);
+
 			  const link = document.createElement("link");
 			  link.rel = "stylesheet";
 			  link.href = "/resources/"+widget.getValue("x3dPlatformId")+"/en/webapps/UIKIT/UIKIT.css";
