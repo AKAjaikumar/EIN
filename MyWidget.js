@@ -289,6 +289,7 @@ define("hellow", [
 					if (rowsMap[pid]) {
    
 					rowsMap[pid].enterpriseItemNumber = rootPartNumber;
+					rowsMap[pid].maturityState = rootObj["ds6w:status"];
 					parentRow = rowsMap[pid];
 					} else {
 				   
