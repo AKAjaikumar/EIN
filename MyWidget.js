@@ -86,8 +86,8 @@ define("hellow", [
         type: 'html',
         dataIndex: '',
         format: function (val, row) {
-			colsole.log("row:",row);
-			colsole.log("val:",val);
+			console.log("row:",row);
+			console.log("val:",val);
 		  if (!row || typeof row !== 'object') {
 			console.warn('Row is undefined or not an object:', row);
 			return '';
