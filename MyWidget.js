@@ -251,7 +251,7 @@ define("hellow", [
 				console.log("rootObj:"+rootObj);
 				console.log("rowsMap[pid]:"+rowsMap[pid]);
 				console.log("pid:"+pid);
-				if (rootObj && !rowsMap[pid]) {
+				if (rootObj) {
 				  const rootPartNumber = rootObj["ds6wg:EnterpriseExtension.V_PartNumber"]
 					|| (rootObj.attributes ? getAttributeValue(rootObj.attributes, "ds6wg:EnterpriseExtension.V_PartNumber") : '');
 					console.log("rootPartNumber:"+rootPartNumber);
@@ -270,6 +270,8 @@ define("hellow", [
 
 				  rowsMap[rootObj.resourceid] = rootRow;
 				  parentRow = rootRow; 
+				  parentRow.enterpriseItemNumber = rootPartNumber;
+					rowsMap[pid].enterpriseItemNumber = rootPartNumber;
 				}
 				const objectMap = {};
 				results.forEach(item => {
