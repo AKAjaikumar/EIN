@@ -47,10 +47,10 @@ define("hellow", [
               level: 0,
               hasChildren: true,
               parentId: null,
-              _expanded: false // Ensure it starts collapsed
+              _expanded: false 
             };
 
-            rowsMap = {}; // Reset rows map
+            rowsMap = {}; 
             rowsMap[pid] = rootRow;
             createGrid([rootRow]);
 
@@ -75,9 +75,10 @@ define("hellow", [
           type: 'html',
           dataIndex: '',
           format: function (val, row) {
-            if (!row || !row.id || !row.hasChildren) return '';
-            return `<div class="expander" data-rowid="${row.id}" style="cursor:pointer">${row._expanded ? '−' : '+'}</div>`;
-          }
+			  if (!row || !row.id || row.hasChildren === false) return '';
+			  const symbol = row._expanded ? '−' : '+';
+			  return `<div class="expander" data-rowid="${row.id}" style="cursor:pointer">${symbol}</div>`;
+			}
         },
         {
           key: 'name',
