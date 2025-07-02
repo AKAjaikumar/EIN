@@ -111,6 +111,14 @@ define("hellow", [
           return `<div style="margin-left:${indent}px">${val || ''}</div>`;
         }
       },
+	  {
+		key: 'structureLevel',
+		text: 'Structure Level',
+		dataIndex: 'level',
+		format: function (val) {
+		  return (typeof val === 'number') ? (val + 1).toString() : '';
+		}
+	  },
       { key: 'type', text: 'Type', dataIndex: 'type' },
       {
         key: 'created',
@@ -267,7 +275,6 @@ define("hellow", [
                 parentRow._children = children;
               parentRow._expanded = true;
 
-              // Recursive expansion with counter
               let remaining = children.length;
               if (remaining === 0) {
                 callback && callback();
