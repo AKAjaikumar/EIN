@@ -179,7 +179,28 @@ define("hellow", [
         text: 'Enterprise Item Number',
         dataIndex: 'enterpriseItemNumber'
       },
-      { key: 'maturityState', text: 'Maturity State', dataIndex: 'maturityState' }
+      { key: 'maturityState', text: 'Maturity State', dataIndex: 'maturityState', 
+		format: function (val) {
+			const state = val?.split('.').pop() || '';
+
+			const colorMap = {
+			  'FROZEN': '#008000', // Green
+			  'IN_WORK': '#0073E6', // Blue
+			  'RELEASED': '#FFA500', // Orange
+			  'OBSOLETE': '#8B0000'  // Dark Red
+			};
+
+			const bgColor = colorMap[state.toUpperCase()] || '#777';
+			return `<span style="
+			  display: inline-block;
+			  padding: 4px 8px;
+			  background-color: ${bgColor};
+			  color: white;
+			  border-radius: 4px;
+			  font-size: 12px;
+			">${state.replace(/_/g, ' ')}</span>`;
+		 } 
+	  }
     ],
     data: data
   });
