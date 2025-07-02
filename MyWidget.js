@@ -22,7 +22,7 @@ define("hellow", [
       widget.body.setStyle("padding", "20px");
       widget.body.setText("Drag a Physical Product here");
 
-      createGrid([]);
+      //createGrid([]);
 
       DataDnD.droppable(widget.body, {
         enter: function (el, event) {
@@ -300,26 +300,19 @@ define("hellow", [
   const result = [];
 
   function addRowRecursive(row) {
-		if (row.hasChildren) {
-		  row.expanderHtml = `<div class="expander" data-rowid="${row.id || ''}" style="cursor:pointer">${row._expanded ? '−' : '+'}</div>`;
-		} else {
-		  row.expanderHtml = '';
-		}
+    result.push(row);
+    if (row._expanded && row._children) {
+      row._children.forEach(addRowRecursive);
+    }
+  }
 
-		result.push(row);
+  Object.values(rowsMap).forEach((row) => {
+    if (!row.parentId) addRowRecursive(row);
+  });
 
-		if (row._expanded && row._children) {
-		  row._children.forEach(addRowRecursive);
-		}
-	  }
-
-	  for (let id in rowsMap) {
-		const row = rowsMap[id];
-		if (!row.parentId) addRowRecursive(row);
-	  }
-
-	  grid.update(result);
+  grid.update(result);
 }
+
 
 
   return myWidget;
