@@ -42,7 +42,7 @@ define("hellow", [
             console.log("Dropped Data:", parsed);
 
             const items = parsed?.data?.items?.[0];
-            console.log("engItem:", engItem);
+            console.log("items:", items);
 			if (!items.length) {
 			  console.warn("No items in dropData");
 			  return;
