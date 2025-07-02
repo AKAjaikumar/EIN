@@ -445,13 +445,57 @@ define("hellow", [
 function injectRemoteUIKitCSS() {
 				const style = document.createElement("style");
 				style.textContent = `
-				  .uwa-table td:first-child {
-					text-align: center;
-					width: 30px;
+				  .uwa-table {
+					border-collapse: collapse;
+					width: 100%;
 				  }
+
+				  .uwa-table thead {
+					background-color: #ccc;
+					font-weight: bold;
+				  }
+
+				  .uwa-table thead th {
+					background-color: #ccc;
+					padding: 8px;
+					border: 1px solid #ddd;
+				  }
+
+				  .uwa-table .dataRow:nth-child(even) {
+					background-color: #f5f5f5;
+				  }
+
+				  .uwa-table .dataRow:nth-child(odd) {
+					background-color: #ffffff;
+				  }
+
+				  .uwa-table td {
+					padding: 6px 10px;
+					border: 1px solid #ddd;
+				  }
+
 				  .uwa-table input[type="checkbox"] {
 					width: 16px;
 					height: 16px;
+				  }
+
+				  .uwa-table .status-badge {
+					padding: 2px 8px;
+					border-radius: 4px;
+					font-size: 11px;
+					color: white;
+					font-weight: bold;
+					display: inline-block;
+					text-align: center;
+					min-width: 70px;
+				  }
+
+				  .badge-inwork {
+					background-color: #0073e6;
+				  }
+
+				  .badge-frozen {
+					background-color: #008000;
 				  }
 				`;
 				document.head.appendChild(style);
