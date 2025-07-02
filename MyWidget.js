@@ -73,8 +73,7 @@ define("hellow", [
           key: 'expandcol',
           text: '',
           width: 30,
-          type: 'html',
-          dataIndex: '',
+          type: 'custom',
           format: function (val, row) {
 			  console.log("Expand format for row:", row);
 			  if (!row || !row.id || row.hasChildren === false) return '';
