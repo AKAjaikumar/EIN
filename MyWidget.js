@@ -1,9 +1,3 @@
-function injectRemoteUIKitCSS() {
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = "https://r1132100433648-ap2-ifwe.3dexperience.3ds.com/resources/20250512T090141Z/en/webapps/UIKIT/UIKIT.css";
-  document.head.appendChild(link);
-}
 define("hellow", [
   "UWA/Core",
   "UWA/Drivers/Alone",
@@ -373,6 +367,13 @@ define("hellow", [
   });
 
  createGrid(result); 
+}
+function injectRemoteUIKitCSS() {
+	
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "/resources/"+widget.getValue("x3dPlatformId")+"/en/webapps/UIKIT/UIKIT.css";
+  document.head.appendChild(link);
 }
   return myWidget;
 });
