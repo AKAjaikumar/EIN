@@ -253,7 +253,8 @@ define("hellow", [
 						type: childObj["type"],
 						created: childObj["ds6w:created"],
 						level: level,
-						hasChildren: true, 
+						hasChildren: true,
+						_expanded: true,
 						expandcol: '', 
 						parentId: parentRow ? parentRow.id : null
 					  };
