@@ -134,6 +134,42 @@ define("hellow", [
 
   widget.body.empty();
   grid.inject(widget.body);
+  const addButton = UWA.createElement('button', {
+    text: 'Add EIN',
+    styles: {
+      marginTop: '10px',
+      padding: '6px 12px',
+      background: '#0073E6',
+      color: 'white',
+      border: 'none',
+      borderRadius: '4px',
+      cursor: 'pointer'
+    },
+    events: {
+      click: function () {
+        const selectedCheckboxes = widget.body.querySelectorAll('.row-selector:checked');
+        if (selectedCheckboxes.length === 0) {
+          alert("No rows selected!");
+          return;
+        }
+
+        const selectedData = Array.from(selectedCheckboxes).map(cb => {
+          const rowId = cb.getAttribute('data-id');
+          const rowData = rowsMap[rowId];
+          return {
+            name: rowData.name,
+            quantity: rowData.quantity || "N/A", // You can adjust this if quantity exists
+            partNumber: rowData.enterpriseItemNumber || ''
+          };
+        });
+
+        console.log("Selected EINs:", selectedData);
+        alert("Selected:\n" + selectedData.map(d => `Name: ${d.name}, EIN: ${d.partNumber}`).join("\n"));
+      }
+    }
+  });
+
+  widget.body.appendChild(addButton);
 setTimeout(() => {
     const selectAllCheckbox = document.getElementById('select-all-checkbox');
     if (selectAllCheckbox) {
