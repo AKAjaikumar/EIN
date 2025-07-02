@@ -92,6 +92,9 @@ define("hellow", [
 		type: 'selection',
 		width: 30,
 		dataIndex: 'id',
+		headerFormat: function () {
+			return `<input type="checkbox" id="select-all-checkbox" />`;
+		  },
 		format: function (val, row) {
 		  return `<input type="checkbox" class="row-selector" data-id="${val}" />`;
 		}
