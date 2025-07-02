@@ -74,6 +74,7 @@ define("hellow", [
 		  text: '',
 		  width: 30,
 		  type: 'html',
+		  dataIndex: '',
 		  format: function (val, row) {
 			  console.log("Formatting expand icon for row:", row);
 			if (!row || typeof row !== 'object') {
