@@ -312,7 +312,11 @@ define("hellow", [
     if (!row.parentId) addRowRecursive(row);
   });
 
-  grid.update(result);
+  if (grid && typeof grid.setData === 'function') {
+    grid.setData(result);
+  } else {
+    console.error("grid.setData is not a function");
+  }
 }
 
 
