@@ -86,8 +86,9 @@ define("hellow", [
         type: 'html',
         dataIndex: '',
         format: function (val, row) {
-          return `<div class="expander" data-rowid="${row.id}" style="cursor:pointer">${row._expanded ? '−' : '+'}</div>`;
-        }
+		  if (!row || !row.id) return '';
+		  return `<div class="expander" data-rowid="${row.id}" style="cursor:pointer">${row._expanded ? '−' : '+'}</div>`;
+		}
       },
       {
         key: 'name',
@@ -114,9 +115,7 @@ define("hellow", [
 
   widget.body.empty();
   grid.inject(widget.body);
-
-}
-widget.body.addEventListener('click', function (e) {
+  widget.body.addEventListener('click', function (e) {
   const target = e.target;
   if (target && target.classList.contains('expander')) {
     const rowId = target.getAttribute('data-rowid');
@@ -134,6 +133,8 @@ widget.body.addEventListener('click', function (e) {
     }
   }
 });
+}
+
 
   function fetchChildren(pid, level, parentRow) {
 	  console.log("Fetched children for", pid, parentRow);
@@ -233,15 +234,14 @@ widget.body.addEventListener('click', function (e) {
 				results.forEach(item => {
 				  if (item.type === "VPMInstance" && item.from === pid) {
 					const childObj = objectMap[item.to];
-					if (childObj) {
+					if (childObj && childObj.resourceid) {
 					  const row = {
 						id: childObj.resourceid,
 						name: childObj["ds6w:label"],
 						type: childObj["type"],
 						created: childObj["ds6w:created"],
 						level: level,
-						hasChildren: true, 
-						expandcol: '', 
+						hasChildren: true,
 						parentId: parentRow ? parentRow.id : null
 					  };
 					  children.push(row);
@@ -292,6 +292,7 @@ widget.body.addEventListener('click', function (e) {
   const result = [];
 
   function addRowRecursive(row) {
+	   if (!row || !row.id) return;
 		if (row.hasChildren) {
 		  row.expanderHtml = `<div class="expander" data-rowid="${row.id || ''}" style="cursor:pointer">${row._expanded ? '−' : '+'}</div>`;
 		} else {
