@@ -82,77 +82,24 @@ define("hellow", [
   function createGrid(data) {
   if (grid) grid.destroy();
 
-  grid = new DataGrid({
-    className: 'uwa-table',
-	selectable: true,
-    multiSelect: true,
-    columns: [
-	  {
-		key: 'select',
-		text: '<input type="checkbox" id="select-all-checkbox" />',
-		width: 30,
-		dataIndex: 'id',
-		format: function (val, row) {
-		  return `<input type="checkbox" class="row-selector" data-id="${val}" />`;
-		}
-	  },
-      {
-        key: 'name',
-        text: 'Name',
-        dataIndex: 'name',
-        format: function (val, row) {
-           const indent = (row && typeof row.level === 'number') ? row.level * 20 : 0;
-          return `<div style="margin-left:${indent}px">${val || ''}</div>`;
-        }
-      },
-	  {
-		key: 'structureLevel',
-		text: 'Structure Level',
-		dataIndex: 'level',
-		format: function (val) {
-		  return (typeof val === 'number') ? (val + 1).toString() : '';
-		}
-	  },
-	  {
-		key: 'enterpriseItemNumber',
-		text: 'Enterprise Item Number',
-		dataIndex: 'enterpriseItemNumber'
-	  },
-      { key: 'type', text: 'Type', dataIndex: 'type' },
-      {
-        key: 'created',
-        text: 'Created On',
-        dataIndex: 'created',
-        format: function (val, row) {
-          const d = new Date(val);
-          return isNaN(d) ? '' : d.toLocaleDateString();
-        }
-      }
-    ],
-    data: data
+  widget.body.empty(); 
+
+
+  const toolbar = UWA.createElement('div', {
+    class: 'toolbar',
+    styles: {
+      display: 'flex',
+      justifyContent: 'flex-start',
+      gap: '10px',
+      padding: '8px',
+      background: '#f8f8f8',
+      borderBottom: '1px solid #ddd'
+    }
   });
 
-  widget.body.empty();
-  grid.inject(widget.body);
-   var toolbar = UWA.createElement('div', {
-                class: 'toolbar',
-                styles: {
-                    display: 'flex',
-                    justifyContent: 'flex-start',
-                    gap: '10px',
-                    padding: '8px',
-                    flex: 'none',
-                    minHeight: '40px',
-                    background: '#f8f8f8',
-                    borderBottom: '1px solid #ddd',
-                    position: 'relative', 
-                    zIndex: 10 
-                }
-            });
   const addButton = UWA.createElement('button', {
     text: 'Add EIN',
     styles: {
-      marginTop: '10px',
       padding: '6px 12px',
       background: '#0073E6',
       color: 'white',
@@ -173,7 +120,7 @@ define("hellow", [
           const rowData = rowsMap[rowId];
           return {
             name: rowData.name,
-            quantity: rowData.quantity || "N/A", // You can adjust this if quantity exists
+            quantity: rowData.quantity || "N/A",
             partNumber: rowData.enterpriseItemNumber || ''
           };
         });
@@ -184,9 +131,65 @@ define("hellow", [
     }
   });
 
-   addButton.inject(toolbar);
-   widget.body.appendChild(toolbar);
-setTimeout(() => {
+  toolbar.appendChild(addButton);
+  widget.body.appendChild(toolbar); 
+
+
+  grid = new DataGrid({
+    className: 'uwa-table',
+    selectable: true,
+    multiSelect: true,
+    columns: [
+      {
+        key: 'select',
+        text: '<input type="checkbox" id="select-all-checkbox" />',
+        width: 30,
+        dataIndex: 'id',
+        format: function (val, row) {
+          return `<input type="checkbox" class="row-selector" data-id="${val}" />`;
+        }
+      },
+      {
+        key: 'name',
+        text: 'Name',
+        dataIndex: 'name',
+        format: function (val, row) {
+          const indent = (row && typeof row.level === 'number') ? row.level * 20 : 0;
+          return `<div style="margin-left:${indent}px">${val || ''}</div>`;
+        }
+      },
+      {
+        key: 'structureLevel',
+        text: 'Structure Level',
+        dataIndex: 'level',
+        format: function (val) {
+          return (typeof val === 'number') ? (val + 1).toString() : '';
+        }
+      },
+      {
+        key: 'enterpriseItemNumber',
+        text: 'Enterprise Item Number',
+        dataIndex: 'enterpriseItemNumber'
+      },
+      { key: 'type', text: 'Type', dataIndex: 'type' },
+      {
+        key: 'created',
+        text: 'Created On',
+        dataIndex: 'created',
+        format: function (val) {
+          const d = new Date(val);
+          return isNaN(d) ? '' : d.toLocaleDateString();
+        }
+      }
+    ],
+    data: data
+  });
+
+  
+  grid.inject(widget.body);
+
+
+  setTimeout(() => {
     const selectAllCheckbox = document.getElementById('select-all-checkbox');
     if (selectAllCheckbox) {
       selectAllCheckbox.addEventListener('change', function () {
@@ -196,6 +199,7 @@ setTimeout(() => {
     }
   }, 300);
 }
+
 
 
   function fetchChildren(pid, level, parentRow, callback) {
