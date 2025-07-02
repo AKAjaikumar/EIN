@@ -444,20 +444,44 @@ define("hellow", [
 function injectRemoteUIKitCSS() {
 				const style = document.createElement("style");
 				style.textContent = `
-				  .uwa-table {
-					border-collapse: collapse;
-					width: 100%;
-				  }
-
-				  .uwa-table thead {
-					background-color: #ccc;
-					font-weight: bold;
-				  }
-
+				  /* Header style */
 				  .uwa-table thead th {
-					background-color: #ccc;
-					padding: 8px;
+					text-align: left;             /* Default left for all */
+					vertical-align: middle;
+				  }
+
+				  /* Center align ONLY the first (checkbox) header */
+				  .uwa-table thead th:first-child {
+					text-align: center;
+					width: 40px;
+				  }
+
+				  /* Data cell alignment */
+				  .uwa-table td {
+					text-align: left !important;
+					vertical-align: middle;
+					padding: 6px 10px;
 					border: 1px solid #ddd;
+				  }
+
+				  /* Only center align the first column cells (checkboxes) */
+				  .uwa-table td:first-child {
+					text-align: center;
+				  }
+
+				  .uwa-table input[type="checkbox"] {
+					width: 16px;
+					height: 16px;
+					cursor: pointer;
+				  }
+
+				  .status-badge {
+					display: inline-block;
+					padding: 4px 8px;
+					border-radius: 4px;
+					font-size: 12px;
+					color: white;
+					font-weight: bold;
 				  }
 
 				  .uwa-table .dataRow:nth-child(even) {
@@ -466,35 +490,6 @@ function injectRemoteUIKitCSS() {
 
 				  .uwa-table .dataRow:nth-child(odd) {
 					background-color: #ffffff;
-				  }
-
-				  .uwa-table td {
-					padding: 6px 10px;
-					border: 1px solid #ddd;
-				  }
-
-				  .uwa-table input[type="checkbox"] {
-					width: 16px;
-					height: 16px;
-				  }
-
-				  .uwa-table .status-badge {
-					padding: 2px 8px;
-					border-radius: 4px;
-					font-size: 11px;
-					color: white;
-					font-weight: bold;
-					display: inline-block;
-					text-align: center;
-					min-width: 70px;
-				  }
-
-				  .badge-inwork {
-					background-color: #0073e6;
-				  }
-
-				  .badge-frozen {
-					background-color: #008000;
 				  }
 				`;
 				document.head.appendChild(style);
