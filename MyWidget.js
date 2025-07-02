@@ -1,13 +1,10 @@
 function injectBasicCheckboxCSS() {
   const style = document.createElement("style");
   style.innerHTML = `
-    .uwa-table td.selection,
-    .uwa-table th.selection {
-      width: 30px;
-      text-align: center;
+    .uwa-table td {
+      padding: 4px;
     }
-
-    .uwa-table input[type="checkbox"] {
+    .row-checkbox {
       width: 14px;
       height: 14px;
       cursor: pointer;
@@ -105,9 +102,13 @@ define("hellow", [
     multiSelect: true,
     columns: [
       {
-      key: 'select',
-      type: 'selection',
-      width: 30
+		  key: 'select',
+		  text: '',
+		  width: 30,
+		  type: 'html',
+		  format: function (val, row) {
+			return `<input type="checkbox" class="row-checkbox" data-rowid="${row.id}">`;
+		  }
 	  },
       {
         key: 'name',
