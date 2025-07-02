@@ -134,6 +134,21 @@ define("hellow", [
 
   widget.body.empty();
   grid.inject(widget.body);
+   var toolbar = UWA.createElement('div', {
+                class: 'toolbar',
+                styles: {
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    gap: '10px',
+                    padding: '8px',
+                    flex: 'none',
+                    minHeight: '40px',
+                    background: '#f8f8f8',
+                    borderBottom: '1px solid #ddd',
+                    position: 'relative', 
+                    zIndex: 10 
+                }
+            });
   const addButton = UWA.createElement('button', {
     text: 'Add EIN',
     styles: {
@@ -169,7 +184,8 @@ define("hellow", [
     }
   });
 
-  widget.body.appendChild(addButton);
+   addButton.inject(toolbar);
+   widget.body.appendChild(toolbar);
 setTimeout(() => {
     const selectAllCheckbox = document.getElementById('select-all-checkbox');
     if (selectAllCheckbox) {
