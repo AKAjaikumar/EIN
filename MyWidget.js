@@ -65,7 +65,9 @@ define("hellow", [
 			rowsMap[pid] = rootRow;
             createGrid([]);
 			
-			updateDataGrid();
+			fetchChildren(pid, 1, rootRow, function () {
+			  updateDataGrid(); 
+			});
 
 
           } catch (e) {
