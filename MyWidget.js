@@ -369,11 +369,11 @@ define("hellow", [
  createGrid(result); 
 }
 function injectRemoteUIKitCSS() {
-	
-	  const link = document.createElement("link");
-	  link.rel = "stylesheet";
-	  link.href = "/resources/"+widget.getValue("x3dPlatformId")+"/en/webapps/UIKIT/UIKIT.css";
-	  document.head.appendChild(link);
+
+			  const link = document.createElement("link");
+			  link.rel = "stylesheet";
+			  link.href = "/resources/"+widget.getValue("x3dPlatformId")+"/en/webapps/UIKIT/UIKIT.css";
+			  document.head.appendChild(link);
 }
   return myWidget;
 });
