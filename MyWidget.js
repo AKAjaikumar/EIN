@@ -282,7 +282,7 @@ define("hellow", [
       if (!row.parentId) addRowRecursive(row);
     }
 
-    grid.update(result);
+    grid.setContent(result);
   }
 
   return myWidget;
