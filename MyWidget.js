@@ -148,7 +148,7 @@ define("hellow", [
 }
 
 
-  function fetchChildren(pid, level, parentRow) {
+  function fetchChildren(pid, level, parentRow, callback) {
 	  console.log("Fetched children for", pid, parentRow);
     i3DXCompassServices.getServiceUrl({
       platformId: widget.getValue("x3dPlatformId"),
