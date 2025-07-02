@@ -86,13 +86,16 @@ define("hellow", [
         type: 'html',
         dataIndex: '',
         format: function (val, row) {
-          if (!row || typeof row !== 'object') {
-			  console.warn('Row is undefined or not an object:', row);
-			  return '';
-			}
-			const symbol = row._expanded ? '−' : '+';
-			return `<div class="expander" data-rowid="${row.id}" style="cursor:pointer">${symbol}</div>`;
+			colsole.log("row:",row);
+			colsole.log("val:",val);
+		  if (!row || typeof row !== 'object') {
+			console.warn('Row is undefined or not an object:', row);
+			return '';
 		  }
+		  if (!row.hasChildren) return ''; 
+		  const symbol = row._expanded ? '−' : '+';
+		  return `<div class="expander" data-rowid="${row.id}" style="cursor:pointer">${symbol}</div>`;
+		}
       },
       {
         key: 'name',
