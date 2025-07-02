@@ -137,24 +137,12 @@ define("hellow", [
 
   widget.body.empty();
   grid.inject(widget.body);
-  widget.body.addEventListener('click', function (e) {
-  const target = e.target;
-  if (target && target.classList.contains('expander')) {
-    const rowId = target.getAttribute('data-rowid');
-    if (!rowId) return;
-
-    const row = rowsMap[rowId];
-    if (!row) return;
-
-    console.log("Expander clicked:", row);
-
-    if (row._expanded) {
-      collapseChildren(row);
-    } else {
-      expandChildren(row);
+setTimeout(() => {
+    const selectAllCheckbox = document.getElementById('select-all-checkbox');
+    if (selectAllCheckbox) {
+      
     }
-  }
-});
+  }, 100);
 }
 
 
