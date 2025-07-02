@@ -35,23 +35,32 @@ define("hellow", [
           if (el && el.classList) el.classList.remove("drag-over");
         },
         drop: function (dropData, el, event) {
-          if (el && el.classList) el.classList.remove("drag-over");
+		  if (el && el.classList) el.classList.remove("drag-over");
 
-          try {
-            const parsed = typeof dropData === 'string' ? JSON.parse(dropData) : dropData;
-            console.log("Dropped Data:", parsed);
+		  try {
+			const parsed = typeof dropData === 'string' ? JSON.parse(dropData) : dropData;
+			console.log("Dropped Data:", parsed);
 
-            const items = parsed?.data?.items?.[0];
-            console.log("items:", items);
-			if (!items.length) {
-			  console.warn("No items in dropData");
+			const items = parsed?.data?.items;
+			if (!Array.isArray(items) || items.length === 0) {
+			  console.warn("No items found in dropped data");
 			  return;
 			}
+
+			let dropCount = items.length;
 			items.forEach(engItem => {
 			  const pid = engItem?.physicalId || engItem?.objectId || engItem?.id;
-			  if (!pid) return;
+			  if (!pid) {
+				console.warn("Invalid object:", engItem);
+				dropCount--;
+				return;
+			  }
 
-			  if (rowsMap[pid]) return;
+			  if (rowsMap[pid]) {
+				console.log("Object already exists:", pid);
+				dropCount--;
+				return;
+			  }
 
 			  const rootRow = {
 				id: pid,
@@ -61,25 +70,23 @@ define("hellow", [
 				level: 0,
 				enterpriseItemNumber: '',
 				hasChildren: true,
-				_expanded: false,
+				_expanded: true,
 				parentId: null
 			  };
 
 			  rowsMap[pid] = rootRow;
 
-			  
 			  fetchChildren(pid, 1, rootRow, function () {
-				updateDataGrid(); 
+				dropCount--;
+				if (dropCount === 0) {
+				  updateDataGrid(); 
+				}
 			  });
 			});
-
-			updateDataGrid();
-
-
-          } catch (e) {
-            console.error("\u274c Failed to parse dropped data:", e);
-          }
-        }
+		  } catch (e) {
+			console.error("❌ Failed to parse dropped data:", e);
+		  }
+		}
       });
     }
   };
@@ -348,22 +355,22 @@ define("hellow", [
 				  }
 				});
 
-                parentRow._children = children;
-              parentRow._expanded = true;
+               parentRow._children = children || [];
+				parentRow._expanded = true;
 
-              let remaining = children.length;
-              if (remaining === 0) {
-                callback && callback();
-              } else {
-                children.forEach(child => {
-                  fetchChildren(child.id, child.level + 1, child, function () {
-                    remaining--;
-                    if (remaining === 0) {
-                      callback && callback();
-                    }
-                  });
-                });
-              }
+				if (!children || children.length === 0) {
+				  callback && callback();  // <== always callback even if no children
+				} else {
+				  let remaining = children.length;
+				  children.forEach(child => {
+					fetchChildren(child.id, child.level + 1, child, function () {
+					  remaining--;
+					  if (remaining === 0) {
+						callback && callback();
+					  }
+					});
+				  });
+				}
               },
               onFailure: function (err) {
                 console.error("Failed to fetch structure from progressiveexpand:", err);
