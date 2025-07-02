@@ -10,10 +10,9 @@ define("hellow", [
   var grid;
   var rowsMap = {};
   var platformId;
-
   var myWidget = {
     onLoadWidget: function () {
-	 loadUIKITCSS();
+	 injectBasicCheckboxCSS();
       widget.body.innerHTML = "";
       console.log("widget loaded");
       platformId = widget.getValue("x3dPlatformId");
@@ -369,11 +368,19 @@ define("hellow", [
 
  createGrid(result); 
 }
-function loadUIKITCSS() {
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = "/webapps/UIKIT/UIKIT.css";
-  document.head.appendChild(link);
+function injectBasicCheckboxCSS() {
+  const style = document.createElement("style");
+  style.innerHTML = `
+    .uwa-table th:first-child, .uwa-table td:first-child {
+      width: 30px;
+      text-align: center;
+    }
+    .uwa-table input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+    }
+  `;
+  document.head.appendChild(style);
 }
 
 
