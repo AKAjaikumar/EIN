@@ -13,6 +13,7 @@ define("hellow", [
 
   var myWidget = {
     onLoadWidget: function () {
+	  UWA.Utils.loadCSS('DS/UIKIT/UIKIT.css');
       widget.body.innerHTML = "";
       console.log("widget loaded");
       platformId = widget.getValue("x3dPlatformId");
