@@ -1,3 +1,20 @@
+function injectBasicCheckboxCSS() {
+  const style = document.createElement("style");
+  style.innerHTML = `
+    .uwa-table td.selection,
+    .uwa-table th.selection {
+      width: 30px;
+      text-align: center;
+    }
+
+    .uwa-table input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+    }
+  `;
+  document.head.appendChild(style);
+}
 define("hellow", [
   "UWA/Core",
   "UWA/Drivers/Alone",
@@ -368,21 +385,5 @@ define("hellow", [
 
  createGrid(result); 
 }
-function injectBasicCheckboxCSS() {
-  const style = document.createElement("style");
-  style.innerHTML = `
-    .uwa-table th:first-child, .uwa-table td:first-child {
-      width: 30px;
-      text-align: center;
-    }
-    .uwa-table input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
-    }
-  `;
-  document.head.appendChild(style);
-}
-
-
   return myWidget;
 });
