@@ -62,8 +62,10 @@ define("hellow", [
 			  parentId: null
 			};
             console.log("Dropped PhysicalProduct ID:", pid);
-            rowsMap[pid] = rootRow;
-            createGrid([rootRow]);
+            createGrid([]);
+			rowsMap[pid] = rootRow;
+			updateDataGrid();
+
 
           } catch (e) {
             console.error("\u274c Failed to parse dropped data:", e);
