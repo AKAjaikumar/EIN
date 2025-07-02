@@ -369,15 +369,23 @@ define("hellow", [
  createGrid(result); 
 }
 function injectRemoteUIKitCSS() {
-
+				const style = document.createElement("style");
+				style.textContent = `
+				  .uwa-table td:first-child {
+					text-align: center;
+					width: 30px;
+				  }
+				  .uwa-table input[type="checkbox"] {
+					width: 16px;
+					height: 16px;
+				  }
+				`;
+				document.head.appendChild(style);
 			  const link = document.createElement("link");
 			  link.rel = "stylesheet";
 			  link.href = "/resources/"+widget.getValue("x3dPlatformId")+"/en/webapps/UIKIT/UIKIT.css";
 			  document.head.appendChild(link);
-			  const link2 = document.createElement("link");
-				link2.rel = "stylesheet";
-				link2.href = "/resources/" + widget.getValue("x3dPlatformId") + "/en/webapps/UWA/assets/css/DataGrid.css";
-				document.head.appendChild(link2);
+			  
 }
   return myWidget;
 });
