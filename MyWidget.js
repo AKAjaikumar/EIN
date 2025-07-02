@@ -5,8 +5,9 @@ define("hellow", [
   "DS/PlatformAPI/PlatformAPI",
   "UWA/Controls/DataGrid",
   "DS/DataDragAndDrop/DataDragAndDrop",
+  "UWA/Controls/DataGrid/Columns/Selection",
   "DS/i3DXCompassServices/i3DXCompassServices"
-], function (Core, Alone, WAFData, PlatformAPI, DataGrid, DataDnD, i3DXCompassServices) {
+], function (Core, Alone, WAFData, PlatformAPI, DataGrid, DataDnD, SelectionColumn, i3DXCompassServices) {
   var grid;
   var rowsMap = {};
   var platformId;
