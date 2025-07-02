@@ -155,8 +155,7 @@ define("hellow", [
 	});
 
 
-	grid.inject(scrollContainer);
-	widget.body.appendChild(scrollContainer);
+	
 	
   grid = new DataGrid({
     className: 'uwa-table',
@@ -219,9 +218,10 @@ define("hellow", [
     data: data
   });
 
-  
+  grid.inject(scrollContainer);
+	widget.body.appendChild(scrollContainer);
   grid.inject(widget.body);
-
+	
 
   setTimeout(() => {
     const selectAllCheckbox = document.getElementById('select-all-checkbox');
