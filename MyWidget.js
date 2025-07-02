@@ -1,16 +1,8 @@
-function injectBasicCheckboxCSS() {
-  const style = document.createElement("style");
-  style.innerHTML = `
-    .uwa-table td {
-      padding: 4px;
-    }
-    .row-checkbox {
-      width: 14px;
-      height: 14px;
-      cursor: pointer;
-    }
-  `;
-  document.head.appendChild(style);
+function injectRemoteUIKitCSS() {
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "https://r1132100433648-ap2-ifwe.3dexperience.3ds.com/resources/20250512T090141Z/en/webapps/UIKIT/UIKIT.css";
+  document.head.appendChild(link);
 }
 define("hellow", [
   "UWA/Core",
@@ -26,7 +18,7 @@ define("hellow", [
   var platformId;
   var myWidget = {
     onLoadWidget: function () {
-	 injectBasicCheckboxCSS();
+	 injectRemoteUIKitCSS();
       widget.body.innerHTML = "";
       console.log("widget loaded");
       platformId = widget.getValue("x3dPlatformId");
@@ -102,13 +94,9 @@ define("hellow", [
     multiSelect: true,
     columns: [
       {
-		  key: 'select',
-		  text: '',
-		  width: 30,
-		  type: 'html',
-		  format: function (val, row) {
-			return `<input type="checkbox" class="row-checkbox" data-rowid="${row.id}">`;
-		  }
+      key: 'select',
+      type: 'selection',
+      width: 30
 	  },
       {
         key: 'name',
