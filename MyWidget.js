@@ -12,6 +12,7 @@ define("hellow", [
   var platformId;
   var myWidget = {
     onLoadWidget: function () {
+		rowsMap = {};
 	 injectRemoteUIKitCSS();
       widget.body.innerHTML = "";
       console.log("widget loaded");
