@@ -88,23 +88,10 @@ define("hellow", [
     multiSelect: true,
     columns: [
       {
-        key: 'expandcol',
-        text: '',
-        width: 30,
-        type: 'html',
-        dataIndex: '',
-        format: function (val, row) {
-			console.log("row:",row);
-			console.log("val:",val);
-		  if (!row || typeof row !== 'object') {
-			console.warn('Row is undefined or not an object:', row);
-			return '';
-		  }
-		  if (!row.hasChildren) return ''; 
-		  const symbol = row._expanded ? '−' : '+';
-		  return `<div class="expander" data-rowid="${row.id}" style="cursor:pointer">${symbol}</div>`;
-		}
-      },
+      key: 'select',
+      type: 'selection',
+      width: 30
+	  },
       {
         key: 'name',
         text: 'Name',
