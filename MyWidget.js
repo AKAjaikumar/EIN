@@ -57,12 +57,7 @@ define("hellow", [
 				return;
 			  }
 
-			  if (rowsMap[pid]) {
-				console.log("Object already exists:", pid);
-				dropCount--;
-				return;
-			  }
-
+			  const isNew = !rowsMap[pid];
 			  const rootRow = {
 				id: pid,
 				name: engItem?.displayName || "Root",
