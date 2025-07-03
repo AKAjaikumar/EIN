@@ -150,6 +150,7 @@ define("hellow", [
 			return;
 		  } else {
 			 // alert("Selected:\n" + selectedData.map(d => `Name: ${d.name}, EIN: ${d.partNumber}`).join("\n"));
+			 const uwaContainer = new UWA.Element(widget.body);
 			 const confirmPopup = new Popup({
 					title: "Confirm Action",
 					modal: true,
@@ -167,7 +168,7 @@ define("hellow", [
 						  content: UWA.createElement('div', {
 							html: '<div style="padding:10px;">Please wait... <span class="spinner"></span></div>'
 						  }),
-						  container: widget.body
+						  container: uwaContainer
 						});
 
 						loadingPopup.inject(widget.body);
@@ -202,10 +203,10 @@ define("hellow", [
 						confirmPopup.destroy();
 					  }
 					},
-					container: widget.body
+					container: uwaContainer
 				  });
 
-					confirmPopup.inject(widget.body);
+					confirmPopup.inject(uwaContainer);
 		  }
 		
       }
