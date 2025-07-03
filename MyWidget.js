@@ -106,73 +106,108 @@ define("hellow", [
     }
   });
 
- require(['DS/UIKIT/Popup'], function (Popup) {
-  const addButton = UWA.createElement('button', {
-    text: 'Set EIN',
-    styles: {
-      padding: '6px 12px',
-      background: '#0073E6',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer'
-    },
-    events: {
-      click: function () {
-        const confirmPopup = new Popup({
-          title: "Confirm Action",
-          modal: true,
-          content: UWA.createElement('div').setHTML(
-            'Do you want to proceed with setting EIN?'
-          ),
-          buttons: [
-            {
-              value: 'OK',
-              className: 'primary',
-              callback: function () {
-                confirmPopup.destroy();
-
-                const loadingContent = UWA.createElement('div').setHTML(
-                  '<div style="padding:10px;">Please wait... <span class="spinner"></span></div>'
-                );
-
-                const loadingPopup = new Popup({
-                  title: "Processing...",
-                  modal: true,
-                  content: loadingContent,
-                  container: widget.body // ✅ correct container
-                });
-
-                loadingPopup.inject(widget.body);
-
-                setTimeout(() => {
-                  loadingPopup.destroy();
-                  alert("Done!");
-                }, 2000);
-              }
-            },
-            {
-              value: 'Cancel',
-              callback: function () {
-                confirmPopup.destroy();
-              }
-            }
-          ],
-          container: widget.body // ✅ correct container
-        });
-
-        confirmPopup.inject(widget.body);
+ const addButton = UWA.createElement('button', {
+  text: 'Set EIN',
+  styles: {
+    padding: '6px 12px',
+    background: '#0073E6',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer'
+  },
+  events: {
+    click: function () {
+      const selectedCheckboxes = widget.body.querySelectorAll('.row-selector:checked');
+      if (selectedCheckboxes.length === 0) {
+        alert("No rows selected!");
+        return;
       }
-    }
-  });
 
-  addButton.inject(widget.body);
-  toolbar.appendChild(addButton);
+      const selectedData = Array.from(selectedCheckboxes).map(cb => {
+        const rowId = cb.getAttribute('data-id');
+        const rowData = rowsMap[rowId];
+        if (!rowData) return null;
+        return {
+          name: rowData.name,
+          quantity: rowData.quantity || "N/A",
+          partNumber: rowData.enterpriseItemNumber || ''
+        };
+      }).filter(Boolean);
+
+      const invalidRows = selectedData.filter(row => {
+        const fullRow = Object.values(rowsMap).find(r => r.name === row.name);
+        if (!fullRow) return true;
+        const state = (fullRow.maturityState || "").split(".").pop().toUpperCase();
+        return state !== "IN_WORK";
+      });
+
+      if (invalidRows.length > 0) {
+        const names = invalidRows.map(r => r.name).join(", ");
+        alert(`Cannot proceed. Only 'IN_WORK' objects can be set.\nOffending object(s): ${names}`);
+        return;
+      }
+
+      const confirmPopup = new Popup({
+        title: "Confirm Action",
+        modal: true,
+        content: UWA.createElement('div', {
+          text: "Do you want to proceed with setting EIN for the selected items?"
+        }),
+        buttons: {
+          OK: function () {
+            confirmPopup.destroy();
+
+            const loadingContent = UWA.createElement('div').setHTML(
+			  '<div style="padding:10px;">Please wait... <span class="spinner"></span></div>'
+			);
+
+            const loadingPopup = new Popup({
+              title: "Processing...",
+              modal: true,
+              content: loadingContent
+            });
+
+            loadingPopup.inject(document.body); // ✅ safer than widget.body
+
+            // Spinner CSS
+            const spinnerStyle = document.createElement("style");
+            spinnerStyle.textContent = `
+              .spinner {
+                display: inline-block;
+                width: 12px;
+                height: 12px;
+                border: 2px solid #ccc;
+                border-top-color: #0073E6;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+              }
+              @keyframes spin {
+                to { transform: rotate(360deg); }
+              }
+            `;
+            document.head.appendChild(spinnerStyle);
+
+            // Simulated service call
+            setTimeout(() => {
+              loadingPopup.destroy();
+              updateDataGrid();
+              alert("EIN set successfully!");
+            }, 2000);
+          },
+          Cancel: function () {
+            confirmPopup.destroy();
+          }
+        }
+      });
+
+      confirmPopup.inject(document.body); // ✅ critical fix
+    }
+  }
 });
 
 
-
-  
+  toolbar.appendChild(addButton);
   widget.body.appendChild(toolbar);
 
   // Create scroll container before injecting
