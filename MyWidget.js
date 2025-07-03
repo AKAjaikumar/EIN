@@ -106,66 +106,66 @@ define("hellow", [
     }
   });
 	function showConfirmationPopup({ title, message, onConfirm }) {
-  const overlay = UWA.createElement('div', {
-    styles: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      backgroundColor: 'rgba(0,0,0,0.4)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 9999
-    }
-  }).inject(document.body);
+		  const overlay = UWA.createElement('div', {
+			styles: {
+			  position: 'fixed',
+			  top: 0,
+			  left: 0,
+			  width: '100%',
+			  height: '100%',
+			  backgroundColor: 'rgba(0,0,0,0.4)',
+			  display: 'flex',
+			  justifyContent: 'center',
+			  alignItems: 'center',
+			  zIndex: 9999
+			}
+		  }).inject(document.body);
 
-  const modal = UWA.createElement('div', {
-    styles: {
-      backgroundColor: '#fff',
-      padding: '20px',
-      borderRadius: '8px',
-      width: '350px',
-      textAlign: 'center',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
-    }
-  }).inject(overlay);
+		  const modal = UWA.createElement('div', {
+			styles: {
+			  backgroundColor: '#fff',
+			  padding: '20px',
+			  borderRadius: '8px',
+			  width: '350px',
+			  textAlign: 'center',
+			  boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+			}
+		  }).inject(overlay);
 
-  UWA.createElement('h4', { text: title }).inject(modal);
-  UWA.createElement('p', { text: message }).inject(modal);
+		  UWA.createElement('h4', { text: title }).inject(modal);
+		  UWA.createElement('p', { text: message }).inject(modal);
 
-  const btnGroup = UWA.createElement('div', {
-    styles: {
-      display: 'flex',
-      justifyContent: 'space-around',
-      marginTop: '20px'
-    }
-  }).inject(modal);
+		  const btnGroup = UWA.createElement('div', {
+			styles: {
+			  display: 'flex',
+			  justifyContent: 'space-around',
+			  marginTop: '20px'
+			}
+		  }).inject(modal);
 
-  UWA.createElement('button', {
-    text: 'Yes',
-    class: 'btn btn-primary',
-    styles: { flex: 1, marginRight: '10px' },
-    events: {
-      click: function () {
-        overlay.remove();
-        onConfirm && onConfirm();
-      }
-    }
-  }).inject(btnGroup);
+		  UWA.createElement('button', {
+			text: 'Yes',
+			class: 'btn btn-primary',
+			styles: { flex: 1, marginRight: '10px' },
+			events: {
+			  click: function () {
+				overlay.remove();
+				onConfirm && onConfirm();
+			  }
+			}
+		  }).inject(btnGroup);
 
-  UWA.createElement('button', {
-    text: 'Cancel',
-    class: 'btn',
-    styles: { flex: 1 },
-    events: {
-      click: function () {
-        overlay.remove();
-      }
-    }
-  }).inject(btnGroup);
-}
+		  UWA.createElement('button', {
+			text: 'Cancel',
+			class: 'btn',
+			styles: { flex: 1 },
+			events: {
+			  click: function () {
+				overlay.remove();
+			  }
+			}
+		  }).inject(btnGroup);
+		}
  const addButton = UWA.createElement('button', {
   text: 'Set EIN',
   styles: {
@@ -238,12 +238,24 @@ define("hellow", [
 					  fontWeight: 'bold'
 					}
 				  }).inject(spinnerOverlay);
+				  const rootIds = Object.values(rowsMap)
+					.filter(row => row.level === 0)
+					.map(row => row.id);
 
-				  // Simulate async EIN setting (replace with actual WS logic)
+				  rowsMap = {};
+				  let pending = rootIds.length;
+				 
 				  setTimeout(() => {
-					spinnerOverlay.remove();
-					alert('EIN set successfully!');
-					updateDataGrid(); // Refresh the grid
+					rootIds.forEach(rootId => {
+						fetchChildren(rootId, 0, null, () => {
+						  pending--;
+						  if (pending === 0) {
+							spinnerOverlay.remove();
+							alert("EIN updated successfully.");
+							updateDataGrid(); // ✅ this will now show updated Part Numbers
+						  }
+						});
+					  });
 				  }, 2000);
 				}
 			  });
