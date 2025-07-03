@@ -159,9 +159,9 @@ define("hellow", [
           OK: function () {
             confirmPopup.destroy();
 
-            const loadingContent = UWA.createElement('div', {
-			  html: '<div style="padding:10px;">Please wait... <span class="spinner"></span></div>'
-			});
+            const loadingContent = UWA.createElement('div').setHTML(
+			  '<div style="padding:10px;">Please wait... <span class="spinner"></span></div>'
+			);
 
             const loadingPopup = new Popup({
               title: "Processing...",
