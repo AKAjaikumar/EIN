@@ -146,22 +146,25 @@ define("hellow", [
         const names = invalidRows.map(r => r.name).join(", ");
         alert(`Cannot proceed. Only 'IN_WORK' objects can be set.\nOffending object(s): ${names}`);
         return;
-      }
-		const popupContent = UWA.createElement('div', {
+      } else {
+		  const popupContent = UWA.createElement('div', {
 			  styles: {
 				padding: '10px',
 				fontSize: '14px'
 			  }
-			}).setText("Do you want to proceed with setting EIN for the selected items?");
-
-			// Create popup manually
+			});
+		  UWA.createElement('div', {
+			  text: "Do you want to proceed with setting EIN for the selected items?",
+			  styles: {
+				marginTop: '10px',
+				marginBottom: '10px'
+			  }
+			}).inject(popupContent);
 			const confirmPopup = new Popup({
 			  title: "Confirm Action",
 			  closeButton: true,
 			  content: popupContent
 			});
-
-			// Add manual buttons
 			const buttonContainer = UWA.createElement('div', {
 			  styles: {
 				marginTop: '10px',
@@ -170,68 +173,11 @@ define("hellow", [
 				justifyContent: 'flex-end'
 			  }
 			});
-
-			const okButton = UWA.createElement('button', {
-			  text: 'OK',
-			  class: 'btn btn-primary',
-			  events: {
-				click: function () {
-				  confirmPopup.destroy();
-
-				  const loadingPopup = new Popup({
-					title: "Processing...",
-					content: UWA.createElement('div').setHTML(
-					  '<div style="padding:10px;">Please wait... <span class="spinner"></span></div>'
-					)
-				  });
-
-				  loadingPopup.inject(document.body);
-
-				  // Add spinner style
-				  const spinnerStyle = document.createElement("style");
-				  spinnerStyle.textContent = `
-					.spinner {
-					  display: inline-block;
-					  width: 12px;
-					  height: 12px;
-					  border: 2px solid #ccc;
-					  border-top-color: #0073E6;
-					  border-radius: 50%;
-					  animation: spin 1s linear infinite;
-					}
-					@keyframes spin {
-					  to { transform: rotate(360deg); }
-					}
-				  `;
-				  document.head.appendChild(spinnerStyle);
-
-				  setTimeout(() => {
-					loadingPopup.destroy();
-					updateDataGrid();
-					alert("EIN set successfully!");
-				  }, 2000);
-				}
-			  }
-			});
-
-			const cancelButton = UWA.createElement('button', {
-			  text: 'Cancel',
-			  class: 'btn',
-			  events: {
-				click: function () {
-				  confirmPopup.destroy();
-				}
-			  }
-			});
-
-			buttonContainer.appendChild(okButton);
-			buttonContainer.appendChild(cancelButton);
 			popupContent.appendChild(buttonContainer);
 
-			confirmPopup.inject(document.body);
-      
 
-      confirmPopup.inject(document.body); // ✅ critical fix
+			confirmPopup.inject(document.body);
+	  }
     }
   }
 });
