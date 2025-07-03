@@ -171,20 +171,16 @@ define("hellow", [
 			  }
 			}).inject(popupContent);
 
+			const popupContainer = UWA.createElement('div');
+			widget.body.appendChild(popupContainer);
+
+
 			const confirmPopup = new Popup({
 			  title: "Confirm Action",
 			  closeButton: true,
 			  content: popupContent,
 			  elements: {
-				container: UWA.createElement('div', {
-				  styles: {
-					position: 'fixed',
-					top: '50%',
-					left: '50%',
-					transform: 'translate(-50%, -50%)',
-					zIndex: 10000
-				  }
-				}).inject(document.body)
+				container: popupContainer
 			  }
 			});
 
