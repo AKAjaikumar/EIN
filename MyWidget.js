@@ -137,6 +137,7 @@ define("hellow", [
         console.log("Selected EINs:", selectedData);
         const invalidRows = selectedData.filter(row => {
 			const fullRow = Object.values(rowsMap).find(r => r.name === row.name);
+			console.log("fullRow:",fullRow);
 			return fullRow && fullRow.maturityState !== "IN_WORK";
 		  });
 
