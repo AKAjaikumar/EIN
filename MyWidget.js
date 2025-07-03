@@ -166,10 +166,11 @@ define("hellow", [
 						  modal: true,
 						  content: UWA.createElement('div', {
 							html: '<div style="padding:10px;">Please wait... <span class="spinner"></span></div>'
-						  })
+						  }),
+						  container: widget.body
 						});
 
-						
+						loadingPopup.inject(widget.body);
 						const spinnerStyle = document.createElement("style");
 						spinnerStyle.textContent = `
 						  .spinner {
