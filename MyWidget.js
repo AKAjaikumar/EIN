@@ -107,113 +107,108 @@ define("hellow", [
   });
 
   const addButton = UWA.createElement('button', {
-    text: 'Set EIN',
-    styles: {
-      padding: '6px 12px',
-      background: '#0073E6',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer'
-    },
-    events: {
-      click: function () {
-        const selectedCheckboxes = widget.body.querySelectorAll('.row-selector:checked');
-        if (selectedCheckboxes.length === 0) {
-          alert("No rows selected!");
-          return;
-        }
-
-        const selectedData = Array.from(selectedCheckboxes).map(cb => {
-          const rowId = cb.getAttribute('data-id');
-          const rowData = rowsMap[rowId];
-          if (!rowData) return null;
-          return {
-            name: rowData.name,
-            quantity: rowData.quantity || "N/A",
-            partNumber: rowData.enterpriseItemNumber || ''
-          };
-        }).filter(Boolean); 
-
-        console.log("Selected EINs:", selectedData);
-        const invalidRows = selectedData.filter(row => {
-			const fullRow = Object.values(rowsMap).find(r => r.name === row.name);
-			console.log("fullRow:",fullRow);
-			if (!fullRow) return true;  
-			  const state = (fullRow.maturityState || "").split(".").pop().toUpperCase();
-			  return state !== "IN_WORK";
-		  });
-
-		  if (invalidRows.length > 0) {
-			const names = invalidRows.map(r => r.name).join(", ");
-			alert(`Cannot proceed. Only 'IN_WORK' objects can be set.\nOffending object(s): ${names}`);
-			return;
-		  } else {
-			 // alert("Selected:\n" + selectedData.map(d => `Name: ${d.name}, EIN: ${d.partNumber}`).join("\n"));
-			 const uwaContainer = new UWA.Element(widget.body);
-			 const confirmPopup = new Popup({
-					title: "Confirm Action",
-					modal: true,
-					content: UWA.createElement('div', {
-					  text: "Do you want to proceed with setting EIN for the selected items?"
-					}),
-					buttons: {
-					  OK: function () {
-						confirmPopup.destroy();
-
-						// Show a loading popup
-						const loadingContent = UWA.createElement('div').setHTML(
-						  '<div style="padding:10px;">Please wait... <span class="spinner"></span></div>'
-						);
-
-						const loadingPopup = new Popup({
-						  title: "Processing...",
-						  modal: true,
-						  content: loadingContent,
-						  container: uwaContainer
-						});
-						
-						loadingPopup.inject(widget.body);
-						const spinnerStyle = document.createElement("style");
-						spinnerStyle.textContent = `
-						  .spinner {
-							display: inline-block;
-							width: 12px;
-							height: 12px;
-							border: 2px solid #ccc;
-							border-top-color: #0073E6;
-							border-radius: 50%;
-							animation: spin 1s linear infinite;
-						  }
-						  @keyframes spin {
-							to { transform: rotate(360deg); }
-						  }
-						`;
-						document.head.appendChild(spinnerStyle);
-
-						// 🔄 Simulate a web service call (replace this with real call)
-						setTimeout(() => {
-						  loadingPopup.destroy();
-
-						  // 🟢 After service completes, refresh grid
-						  updateDataGrid();
-
-						  alert("EIN set successfully!");
-						}, 2000); 
-					  },
-					  Cancel: function () {
-						confirmPopup.destroy();
-					  }
-					},
-					container: uwaContainer
-				  });
-
-					confirmPopup.inject(uwaContainer);
-		  }
-		
+  text: 'Set EIN',
+  styles: {
+    padding: '6px 12px',
+    background: '#0073E6',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer'
+  },
+  events: {
+    click: function () {
+      const selectedCheckboxes = widget.body.querySelectorAll('.row-selector:checked');
+      if (selectedCheckboxes.length === 0) {
+        alert("No rows selected!");
+        return;
       }
+
+      const selectedData = Array.from(selectedCheckboxes).map(cb => {
+        const rowId = cb.getAttribute('data-id');
+        const rowData = rowsMap[rowId];
+        if (!rowData) return null;
+        return {
+          name: rowData.name,
+          quantity: rowData.quantity || "N/A",
+          partNumber: rowData.enterpriseItemNumber || ''
+        };
+      }).filter(Boolean);
+
+      console.log("Selected EINs:", selectedData);
+
+      const invalidRows = selectedData.filter(row => {
+        const fullRow = Object.values(rowsMap).find(r => r.name === row.name);
+        if (!fullRow) return true;
+        const state = (fullRow.maturityState || "").split(".").pop().toUpperCase();
+        return state !== "IN_WORK";
+      });
+
+      if (invalidRows.length > 0) {
+        const names = invalidRows.map(r => r.name).join(", ");
+        alert(`Cannot proceed. Only 'IN_WORK' objects can be set.\nOffending object(s): ${names}`);
+        return;
+      }
+
+      const confirmPopup = new Popup({
+        title: "Confirm Action",
+        modal: true,
+        content: UWA.createElement('div', {
+          text: "Do you want to proceed with setting EIN for the selected items?"
+        }),
+        buttons: {
+          OK: function () {
+            confirmPopup.destroy();
+
+            // Show loading popup
+            const loadingContent = UWA.createElement('div').setHTML(
+              '<div style="padding:10px;">Please wait... <span class="spinner"></span></div>'
+            );
+
+            const loadingPopup = new Popup({
+              title: "Processing...",
+              modal: true,
+              content: loadingContent
+            });
+
+            loadingPopup.inject(widget.body);
+
+            // Spinner styling
+            const spinnerStyle = document.createElement("style");
+            spinnerStyle.textContent = `
+              .spinner {
+                display: inline-block;
+                width: 12px;
+                height: 12px;
+                border: 2px solid #ccc;
+                border-top-color: #0073E6;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+              }
+              @keyframes spin {
+                to { transform: rotate(360deg); }
+              }
+            `;
+            document.head.appendChild(spinnerStyle);
+
+            // Simulate async web service
+            setTimeout(() => {
+              loadingPopup.destroy();
+              updateDataGrid();
+              alert("EIN set successfully!");
+            }, 2000);
+          },
+          Cancel: function () {
+            confirmPopup.destroy();
+          }
+        }
+      });
+
+      confirmPopup.inject(widget.body);
     }
-  });
+  }
+});
+
 
   toolbar.appendChild(addButton);
   widget.body.appendChild(toolbar);
