@@ -176,7 +176,7 @@ define("hellow", [
 			popupContent.appendChild(buttonContainer);
 
 
-			confirmPopup.inject(document.body);
+			confirmPopup.inject(widget.body);
 	  }
     }
   }
