@@ -132,13 +132,15 @@ define("hellow", [
             quantity: rowData.quantity || "N/A",
             partNumber: rowData.enterpriseItemNumber || ''
           };
-        }).filter(Boolean); // remove nulls
+        }).filter(Boolean); 
 
         console.log("Selected EINs:", selectedData);
         const invalidRows = selectedData.filter(row => {
 			const fullRow = Object.values(rowsMap).find(r => r.name === row.name);
 			console.log("fullRow:",fullRow);
-			return fullRow && fullRow.maturityState !== "IN_WORK";
+			if (!fullRow) return true;  
+			  const state = (fullRow.maturityState || "").split(".").pop().toUpperCase();
+			  return state !== "IN_WORK";
 		  });
 
 		  if (invalidRows.length > 0) {
