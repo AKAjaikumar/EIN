@@ -160,10 +160,15 @@ define("hellow", [
 				marginBottom: '10px'
 			  }
 			}).inject(popupContent);
+			
+			const popupContainer = UWA.createElement('div').inject(widget.body);
 			const confirmPopup = new Popup({
 			  title: "Confirm Action",
 			  closeButton: true,
-			  content: popupContent
+			  content: popupContent,
+			  elements: {
+				container: popupContainer  // 👈 REQUIRED to avoid the error
+			  }
 			});
 			const buttonContainer = UWA.createElement('div', {
 			  styles: {
