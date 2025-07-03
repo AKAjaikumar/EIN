@@ -166,31 +166,25 @@ define("hellow", [
 			content.appendChild(table);
 
 			// Create popup buttons
-			const popupButtons = {
-			  'Set': function () {
-				console.log("Calling web service with:", selectedData);
-
-				// Simulate API call here
-				alert("✅ Web service called with " + selectedData.length + " rows.");
-
-				popup.destroy();
-			  },
-			  'Cancel': function () {
-				popup.destroy();
-			  }
-			};
-
-			// Show popup
 			const popup = new Popup({
-			  title: "Selected EINs",
-			  modal: true,
-			  buttons: popupButtons,
-			  content: content
-			});
-			popup.inject(document.body);
-      }
-    }
-  });
+		  title: "Selected EINs",
+		  modal: true,
+		  buttons: {
+			'Set': function () {
+			  alert("✅ Set clicked");
+			  popup.destroy();
+			},
+			'Cancel': function () {
+			  popup.destroy();
+			}
+		  },
+		  content: content
+		});
+
+		popup.inject(widget.body || document.body);
+			  }
+			}
+		  });
 
   toolbar.appendChild(addButton);
   widget.body.appendChild(toolbar);
