@@ -3,10 +3,11 @@ define("hellow", [
   "UWA/Drivers/Alone",
   "DS/WAFData/WAFData",
   "DS/PlatformAPI/PlatformAPI",
+  "UWA/Controls/Popup",
   "UWA/Controls/DataGrid",
   "DS/DataDragAndDrop/DataDragAndDrop",
   "DS/i3DXCompassServices/i3DXCompassServices"
-], function (Core, Alone, WAFData, PlatformAPI, DataGrid, DataDnD, i3DXCompassServices) {
+], function (Core, Alone, WAFData, PlatformAPI, Popup, DataGrid, DataDnD, i3DXCompassServices) {
   var grid;
   var rowsMap = {};
   var platformId;
@@ -148,7 +149,61 @@ define("hellow", [
 			alert(`Cannot proceed. Only 'IN_WORK' objects can be set.\nOffending object(s): ${names}`);
 			return;
 		  } else {
-			  alert("Selected:\n" + selectedData.map(d => `Name: ${d.name}, EIN: ${d.partNumber}`).join("\n"));
+			 // alert("Selected:\n" + selectedData.map(d => `Name: ${d.name}, EIN: ${d.partNumber}`).join("\n"));
+			 const confirmPopup = new Popup({
+					title: "Confirm Action",
+					modal: true,
+					content: UWA.createElement('div', {
+					  text: "Do you want to proceed with setting EIN for the selected items?"
+					}),
+					buttons: {
+					  OK: function () {
+						confirmPopup.destroy();
+
+						// Show a loading popup
+						const loadingPopup = new Popup({
+						  title: "Processing...",
+						  modal: true,
+						  content: UWA.createElement('div', {
+							html: '<div style="padding:10px;">Please wait... <span class="spinner"></span></div>'
+						  })
+						});
+
+						
+						const spinnerStyle = document.createElement("style");
+						spinnerStyle.textContent = `
+						  .spinner {
+							display: inline-block;
+							width: 12px;
+							height: 12px;
+							border: 2px solid #ccc;
+							border-top-color: #0073E6;
+							border-radius: 50%;
+							animation: spin 1s linear infinite;
+						  }
+						  @keyframes spin {
+							to { transform: rotate(360deg); }
+						  }
+						`;
+						document.head.appendChild(spinnerStyle);
+
+						// 🔄 Simulate a web service call (replace this with real call)
+						setTimeout(() => {
+						  loadingPopup.destroy();
+
+						  // 🟢 After service completes, refresh grid
+						  updateDataGrid();
+
+						  alert("EIN set successfully!");
+						}, 2000); 
+					  },
+					  Cancel: function () {
+						confirmPopup.destroy();
+					  }
+					}
+				  });
+
+					confirmPopup.inject(document.body);
 		  }
 		
       }
