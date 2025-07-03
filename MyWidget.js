@@ -3,11 +3,10 @@ define("hellow", [
   "UWA/Drivers/Alone",
   "DS/WAFData/WAFData",
   "DS/PlatformAPI/PlatformAPI",
-  "UWA/Controls/Popup",
   "UWA/Controls/DataGrid",
   "DS/DataDragAndDrop/DataDragAndDrop",
   "DS/i3DXCompassServices/i3DXCompassServices"
-], function (Core, Alone, WAFData, PlatformAPI, Popup, DataGrid, DataDnD, i3DXCompassServices) {
+], function (Core, Alone, WAFData, PlatformAPI, DataGrid, DataDnD, i3DXCompassServices) {
   var grid;
   var rowsMap = {};
   var platformId;
@@ -136,79 +135,22 @@ define("hellow", [
         }).filter(Boolean); // remove nulls
 
         console.log("Selected EINs:", selectedData);
-        alert("Selected:\n" + selectedData.map(d => `Name: ${d.name}, EIN: ${d.partNumber}`).join("\n"));
-		 const content = UWA.createElement('div', {
-      styles: { padding: '10px' }
-    });
-
-    const table = UWA.createElement('table', {
-      styles: {
-        width: '100%',
-        borderCollapse: 'collapse',
-        marginBottom: '10px'
-      }
-    });
-
-			const headerRow = UWA.createElement('tr');
-			headerRow.appendChild(UWA.createElement('th', {
-			  text: 'Name',
-			  styles: {
-				borderBottom: '1px solid #ccc',
-				textAlign: 'left',
-				padding: '6px'
-			  }
-			}));
-			headerRow.appendChild(UWA.createElement('th', {
-			  text: 'Part Number',
-			  styles: {
-				borderBottom: '1px solid #ccc',
-				textAlign: 'left',
-				padding: '6px'
-			  }
-			}));
-			table.appendChild(headerRow);
-
-			selectedData.forEach(row => {
-			  const rowElement = UWA.createElement('tr');
-			  rowElement.appendChild(UWA.createElement('td', {
-				text: row.name,
-				styles: {
-				  padding: '6px',
-				  borderBottom: '1px solid #eee'
-				}
-			  }));
-			  rowElement.appendChild(UWA.createElement('td', {
-				text: row.partNumber,
-				styles: {
-				  padding: '6px',
-				  borderBottom: '1px solid #eee'
-				}
-			  }));
-			  table.appendChild(rowElement);
-			});
-
-			content.appendChild(table);
-
-			// Create popup buttons
-			const popup = new Popup({
-		  title: "Selected EINs",
-		  modal: true,
-		  buttons: {
-			'Set': function () {
-			  alert("✅ Set clicked");
-			  popup.destroy();
-			},
-			'Cancel': function () {
-			  popup.destroy();
-			}
-		  },
-		  content: content
-		});
-
-		popup.inject(document.body);
-			  }
-			}
+        const invalidRows = selectedData.filter(row => {
+			const fullRow = Object.values(rowsMap).find(r => r.name === row.name);
+			return fullRow && fullRow.maturityState !== "IN_WORK";
 		  });
+
+		  if (invalidRows.length > 0) {
+			const names = invalidRows.map(r => r.name).join(", ");
+			alert(`Cannot proceed. Only 'IN_WORK' objects can be set.\nOffending object(s): ${names}`);
+			return;
+		  } else {
+			  alert("Selected:\n" + selectedData.map(d => `Name: ${d.name}, EIN: ${d.partNumber}`).join("\n"));
+		  }
+		
+      }
+    }
+  });
 
   toolbar.appendChild(addButton);
   widget.body.appendChild(toolbar);
