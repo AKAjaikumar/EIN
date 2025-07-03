@@ -147,11 +147,11 @@ define("hellow", [
         alert(`Cannot proceed. Only 'IN_WORK' objects can be set.\nOffending object(s): ${names}`);
         return;
       }
-
+		const containerEl = new UWA.Element(document.body);
       const confirmPopup = new Popup({
         title: "Confirm Action",
         modal: true,
-		container: document.body,
+		container: containerEl,
         content: UWA.createElement('div', {
           text: "Do you want to proceed with setting EIN for the selected items?"
         }),
@@ -166,7 +166,7 @@ define("hellow", [
             const loadingPopup = new Popup({
               title: "Processing...",
               modal: true,
-			  container: document.body,
+			  container: containerEl,
               content: loadingContent
             });
 
@@ -203,7 +203,7 @@ define("hellow", [
         }
       });
 
-      confirmPopup.inject(document.body); // ✅ critical fix
+      confirmPopup.inject(containerEl); // ✅ critical fix
     }
   }
 });
