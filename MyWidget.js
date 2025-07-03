@@ -171,19 +171,35 @@ define("hellow", [
 			  }
 			}).inject(popupContent);
 
-			const confirmBtn = UWA.createElement('button', {
+			const confirmPopup = new Popup({
+			  title: "Confirm Action",
+			  closeButton: true,
+			  content: popupContent,
+			  elements: {
+				container: UWA.createElement('div', {
+				  styles: {
+					position: 'fixed',
+					top: '50%',
+					left: '50%',
+					transform: 'translate(-50%, -50%)',
+					zIndex: 10000
+				  }
+				}).inject(document.body)
+			  }
+			});
+
+			UWA.createElement('button', {
 			  text: 'Yes',
 			  class: 'btn btn-primary',
 			  events: {
 				click: () => {
-				  confirmPopup.hide(); // hide popup
-				  // 👉 TODO: Proceed with EIN logic here
+				  confirmPopup.hide();
 				  alert('EIN Set logic can be triggered here');
 				}
 			  }
 			}).inject(buttonContainer);
 
-			const cancelBtn = UWA.createElement('button', {
+			UWA.createElement('button', {
 			  text: 'Cancel',
 			  class: 'btn',
 			  events: {
@@ -191,29 +207,9 @@ define("hellow", [
 			  }
 			}).inject(buttonContainer);
 
-			// IMPORTANT: Create valid container injected to document.body
-			const popupContainer = new Element('div', {
-			  styles: {
-				position: 'fixed',
-				top: '50%',
-				left: '50%',
-				transform: 'translate(-50%, -50%)',
-				zIndex: 10000
-			  }
-			}).inject(document.body);  // NOT widget.body
-
-			const confirmPopup = new Popup({
-			  title: "Confirm Action",
-			  closeButton: true,
-			  content: popupContent,
-			  elements: {
-				container: popupContainer
-			  }
-			});
-			popupContent.appendChild(buttonContainer);
-
-
+			// Show the popup
 			confirmPopup.inject(widget.body);
+
 	  }
     }
   }
