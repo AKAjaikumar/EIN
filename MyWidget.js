@@ -106,7 +106,7 @@ define("hellow", [
     }
   });
 
-  const addButton = UWA.createElement('button', {
+ const addButton = UWA.createElement('button', {
   text: 'Set EIN',
   styles: {
     padding: '6px 12px',
@@ -135,8 +135,6 @@ define("hellow", [
         };
       }).filter(Boolean);
 
-      console.log("Selected EINs:", selectedData);
-
       const invalidRows = selectedData.filter(row => {
         const fullRow = Object.values(rowsMap).find(r => r.name === row.name);
         if (!fullRow) return true;
@@ -160,7 +158,6 @@ define("hellow", [
           OK: function () {
             confirmPopup.destroy();
 
-            // Show loading popup
             const loadingContent = UWA.createElement('div').setHTML(
               '<div style="padding:10px;">Please wait... <span class="spinner"></span></div>'
             );
@@ -171,9 +168,9 @@ define("hellow", [
               content: loadingContent
             });
 
-            loadingPopup.inject(widget.body);
+            loadingPopup.inject(document.body); // ✅ safer than widget.body
 
-            // Spinner styling
+            // Spinner CSS
             const spinnerStyle = document.createElement("style");
             spinnerStyle.textContent = `
               .spinner {
@@ -191,7 +188,7 @@ define("hellow", [
             `;
             document.head.appendChild(spinnerStyle);
 
-            // Simulate async web service
+            // Simulated service call
             setTimeout(() => {
               loadingPopup.destroy();
               updateDataGrid();
@@ -204,7 +201,7 @@ define("hellow", [
         }
       });
 
-      confirmPopup.inject(widget.body);
+      confirmPopup.inject(document.body); // ✅ critical fix
     }
   }
 });
