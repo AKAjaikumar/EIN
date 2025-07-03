@@ -105,7 +105,67 @@ define("hellow", [
       borderBottom: '1px solid #ddd'
     }
   });
+	function showConfirmationPopup({ title, message, onConfirm }) {
+  const overlay = UWA.createElement('div', {
+    styles: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'rgba(0,0,0,0.4)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 9999
+    }
+  }).inject(document.body);
 
+  const modal = UWA.createElement('div', {
+    styles: {
+      backgroundColor: '#fff',
+      padding: '20px',
+      borderRadius: '8px',
+      width: '350px',
+      textAlign: 'center',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+    }
+  }).inject(overlay);
+
+  UWA.createElement('h4', { text: title }).inject(modal);
+  UWA.createElement('p', { text: message }).inject(modal);
+
+  const btnGroup = UWA.createElement('div', {
+    styles: {
+      display: 'flex',
+      justifyContent: 'space-around',
+      marginTop: '20px'
+    }
+  }).inject(modal);
+
+  UWA.createElement('button', {
+    text: 'Yes',
+    class: 'btn btn-primary',
+    styles: { flex: 1, marginRight: '10px' },
+    events: {
+      click: function () {
+        overlay.remove();
+        onConfirm && onConfirm();
+      }
+    }
+  }).inject(btnGroup);
+
+  UWA.createElement('button', {
+    text: 'Cancel',
+    class: 'btn',
+    styles: { flex: 1 },
+    events: {
+      click: function () {
+        overlay.remove();
+      }
+    }
+  }).inject(btnGroup);
+}
  const addButton = UWA.createElement('button', {
   text: 'Set EIN',
   styles: {
@@ -147,74 +207,46 @@ define("hellow", [
         alert(`Cannot proceed. Only 'IN_WORK' objects can be set.\nOffending object(s): ${names}`);
         return;
       } else {
-		   const popupContent = UWA.createElement('div', {
-				styles: {
-					padding: '10px',
-					fontSize: '14px'
-				}
-			});
-
-			UWA.createElement('div', {
-				text: "Do you want to proceed with setting EIN for the selected items?",
-				styles: {
-					marginTop: '10px',
-					marginBottom: '10px'
-				}
-			}).inject(popupContent);
-
-			const buttonContainer = UWA.createElement('div', {
-				styles: {
-					marginTop: '10px',
-					display: 'flex',
-					gap: '10px',
-					justifyContent: 'flex-end'
-				}
-			}).inject(popupContent);
-
-			// Create Popup
-			const confirmPopup = new Popup({
-				title: "Confirm Action",
-				closeButton: true,
-				content: popupContent
-			});
-
-			// YES Button
-			UWA.createElement('button', {
-				text: 'Yes',
-				class: 'btn btn-primary',
-				events: {
-					click: () => {
-						confirmPopup.hide();
-
-						// Show Loading Popup
-						const loadingPopup = new Popup({
-							title: "Setting EIN...",
-							closeButton: false,
-							modal: true,
-							content: new ProgressIndicator({ className: 'large' })
-						});
-						loadingPopup.inject(widget.body);  // Required
-
-						// Simulate WebService Call
-						setTimeout(() => {
-							loadingPopup.hide();
-							updateDataGrid(); // or any grid refresh
-						}, 2000);
+		    showConfirmationPopup({
+				title: "Set EIN",
+				message: "Do you want to proceed with setting EIN for the selected items?",
+				onConfirm: function () {
+				  // Show loading overlay
+				  const spinnerOverlay = UWA.createElement('div', {
+					styles: {
+					  position: 'fixed',
+					  top: 0,
+					  left: 0,
+					  width: '100%',
+					  height: '100%',
+					  backgroundColor: 'rgba(0,0,0,0.3)',
+					  zIndex: 9999,
+					  display: 'flex',
+					  justifyContent: 'center',
+					  alignItems: 'center'
 					}
-				}
-			}).inject(buttonContainer);
+				  }).inject(document.body);
 
-			// CANCEL Button
-			UWA.createElement('button', {
-				text: 'Cancel',
-				class: 'btn',
-				events: {
-					click: () => confirmPopup.hide()
-				}
-			}).inject(buttonContainer);
+				  const spinnerBox = UWA.createElement('div', {
+					text: 'Setting EIN...',
+					styles: {
+					  padding: '20px',
+					  background: '#fff',
+					  borderRadius: '8px',
+					  boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+					  fontSize: '16px',
+					  fontWeight: 'bold'
+					}
+				  }).inject(spinnerOverlay);
 
-			// Inject the popup into the widget
-			confirmPopup.inject(widget.body);
+				  // Simulate async EIN setting (replace with actual WS logic)
+				  setTimeout(() => {
+					spinnerOverlay.remove();
+					alert('EIN set successfully!');
+					updateDataGrid(); // Refresh the grid
+				  }, 2000);
+				}
+			  });
 
 	  }
     }
