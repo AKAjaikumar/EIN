@@ -181,7 +181,7 @@ define("hellow", [
 		  content: content
 		});
 
-		popup.inject(widget.body || document.body);
+		popup.inject(document.body);
 			  }
 			}
 		  });
