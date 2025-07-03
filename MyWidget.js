@@ -150,16 +150,40 @@ define("hellow", [
     });
 
 			const headerRow = UWA.createElement('tr');
-			headerRow.innerHTML = `
-			  <th style="border-bottom:1px solid #ccc;text-align:left;padding:6px;">Name</th>
-			  <th style="border-bottom:1px solid #ccc;text-align:left;padding:6px;">Part Number</th>`;
+			headerRow.appendChild(UWA.createElement('th', {
+			  text: 'Name',
+			  styles: {
+				borderBottom: '1px solid #ccc',
+				textAlign: 'left',
+				padding: '6px'
+			  }
+			}));
+			headerRow.appendChild(UWA.createElement('th', {
+			  text: 'Part Number',
+			  styles: {
+				borderBottom: '1px solid #ccc',
+				textAlign: 'left',
+				padding: '6px'
+			  }
+			}));
 			table.appendChild(headerRow);
 
 			selectedData.forEach(row => {
 			  const rowElement = UWA.createElement('tr');
-			  rowElement.innerHTML = `
-				<td style="padding:6px;border-bottom:1px solid #eee;">${row.name}</td>
-				<td style="padding:6px;border-bottom:1px solid #eee;">${row.partNumber}</td>`;
+			  rowElement.appendChild(UWA.createElement('td', {
+				text: row.name,
+				styles: {
+				  padding: '6px',
+				  borderBottom: '1px solid #eee'
+				}
+			  }));
+			  rowElement.appendChild(UWA.createElement('td', {
+				text: row.partNumber,
+				styles: {
+				  padding: '6px',
+				  borderBottom: '1px solid #eee'
+				}
+			  }));
 			  table.appendChild(rowElement);
 			});
 
