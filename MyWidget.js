@@ -147,68 +147,74 @@ define("hellow", [
         alert(`Cannot proceed. Only 'IN_WORK' objects can be set.\nOffending object(s): ${names}`);
         return;
       } else {
-		  require(['UWA/Controls/Popup'], function (Popup) {
+		   const popupContent = UWA.createElement('div', {
+				styles: {
+					padding: '10px',
+					fontSize: '14px'
+				}
+			});
 
-				  const popupContent = UWA.createElement('div', {
-					styles: {
-					  padding: '10px',
-					  fontSize: '14px'
-					}
-				  });
+			UWA.createElement('div', {
+				text: "Do you want to proceed with setting EIN for the selected items?",
+				styles: {
+					marginTop: '10px',
+					marginBottom: '10px'
+				}
+			}).inject(popupContent);
 
-				  UWA.createElement('div', {
-					text: "Do you want to proceed with setting EIN for the selected items?",
-					styles: {
-					  marginTop: '10px',
-					  marginBottom: '10px'
-					}
-				  }).inject(popupContent);
+			const buttonContainer = UWA.createElement('div', {
+				styles: {
+					marginTop: '10px',
+					display: 'flex',
+					gap: '10px',
+					justifyContent: 'flex-end'
+				}
+			}).inject(popupContent);
 
-				  const buttonContainer = UWA.createElement('div', {
-					styles: {
-					  marginTop: '10px',
-					  display: 'flex',
-					  gap: '10px',
-					  justifyContent: 'flex-end'
-					}
-				  }).inject(popupContent);
+			// Create Popup
+			const confirmPopup = new Popup({
+				title: "Confirm Action",
+				closeButton: true,
+				content: popupContent
+			});
 
-				  // ✅ Correct way to create a container
-				  const popupContainer = new Element('div');  // DO NOT use UWA.createElement here
-				  widget.body.appendChild(popupContainer);    // MUST be added to DOM before popup
-
-				  // ✅ Now create the popup using valid container
-				  const confirmPopup = new Popup({
-					title: "Confirm Action",
-					closeButton: true,
-					content: popupContent,
-					elements: {
-					  container: popupContainer
-					}
-				  });
-
-				  UWA.createElement('button', {
-					text: 'Yes',
-					class: 'btn btn-primary',
-					events: {
-					  click: () => {
+			// YES Button
+			UWA.createElement('button', {
+				text: 'Yes',
+				class: 'btn btn-primary',
+				events: {
+					click: () => {
 						confirmPopup.hide();
-						alert('EIN Set logic can be triggered here');
-					  }
-					}
-				  }).inject(buttonContainer);
 
-				  UWA.createElement('button', {
-					text: 'Cancel',
-					class: 'btn',
-					events: {
-					  click: () => confirmPopup.hide()
-					}
-				  }).inject(buttonContainer);
+						// Show Loading Popup
+						const loadingPopup = new Popup({
+							title: "Setting EIN...",
+							closeButton: false,
+							modal: true,
+							content: new ProgressIndicator({ className: 'large' })
+						});
+						loadingPopup.inject(widget.body);  // Required
 
-				  // ✅ Show popup
-				  confirmPopup.inject(widget.body);
-				});
+						// Simulate WebService Call
+						setTimeout(() => {
+							loadingPopup.hide();
+							updateDataGrid(); // or any grid refresh
+						}, 2000);
+					}
+				}
+			}).inject(buttonContainer);
+
+			// CANCEL Button
+			UWA.createElement('button', {
+				text: 'Cancel',
+				class: 'btn',
+				events: {
+					click: () => confirmPopup.hide()
+				}
+			}).inject(buttonContainer);
+
+			// Inject the popup into the widget
+			confirmPopup.inject(widget.body);
 
 	  }
     }
