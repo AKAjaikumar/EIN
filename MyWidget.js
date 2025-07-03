@@ -153,29 +153,61 @@ define("hellow", [
 				fontSize: '14px'
 			  }
 			});
-		  UWA.createElement('div', {
+
+			UWA.createElement('div', {
 			  text: "Do you want to proceed with setting EIN for the selected items?",
 			  styles: {
 				marginTop: '10px',
 				marginBottom: '10px'
 			  }
 			}).inject(popupContent);
-			
-			const popupContainer = UWA.createElement('div').inject(widget.body);
-			const confirmPopup = new Popup({
-			  title: "Confirm Action",
-			  closeButton: true,
-			  content: popupContent,
-			  elements: {
-				container: popupContainer  // 👈 REQUIRED to avoid the error
-			  }
-			});
+
 			const buttonContainer = UWA.createElement('div', {
 			  styles: {
 				marginTop: '10px',
 				display: 'flex',
 				gap: '10px',
 				justifyContent: 'flex-end'
+			  }
+			}).inject(popupContent);
+
+			const confirmBtn = UWA.createElement('button', {
+			  text: 'Yes',
+			  class: 'btn btn-primary',
+			  events: {
+				click: () => {
+				  confirmPopup.hide(); // hide popup
+				  // 👉 TODO: Proceed with EIN logic here
+				  alert('EIN Set logic can be triggered here');
+				}
+			  }
+			}).inject(buttonContainer);
+
+			const cancelBtn = UWA.createElement('button', {
+			  text: 'Cancel',
+			  class: 'btn',
+			  events: {
+				click: () => confirmPopup.hide()
+			  }
+			}).inject(buttonContainer);
+
+			// IMPORTANT: Create valid container injected to document.body
+			const popupContainer = new Element('div', {
+			  styles: {
+				position: 'fixed',
+				top: '50%',
+				left: '50%',
+				transform: 'translate(-50%, -50%)',
+				zIndex: 10000
+			  }
+			}).inject(document.body);  // NOT widget.body
+
+			const confirmPopup = new Popup({
+			  title: "Confirm Action",
+			  closeButton: true,
+			  content: popupContent,
+			  elements: {
+				container: popupContainer
 			  }
 			});
 			popupContent.appendChild(buttonContainer);
