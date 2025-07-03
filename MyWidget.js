@@ -205,7 +205,7 @@ define("hellow", [
 					container: widget.body
 				  });
 
-					confirmPopup.inject(document.body);
+					confirmPopup.inject(widget.body);
 		  }
 		
       }
