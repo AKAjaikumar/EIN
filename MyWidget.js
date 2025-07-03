@@ -167,11 +167,12 @@ define("hellow", [
   });
 
   addButton.inject(widget.body);
+  toolbar.appendChild(addButton);
 });
 
 
 
-  toolbar.appendChild(addButton);
+  
   widget.body.appendChild(toolbar);
 
   // Create scroll container before injecting
