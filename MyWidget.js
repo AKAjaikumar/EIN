@@ -151,6 +151,7 @@ define("hellow", [
       const confirmPopup = new Popup({
         title: "Confirm Action",
         modal: true,
+		container: document.body,
         content: UWA.createElement('div', {
           text: "Do you want to proceed with setting EIN for the selected items?"
         }),
@@ -165,6 +166,7 @@ define("hellow", [
             const loadingPopup = new Popup({
               title: "Processing...",
               modal: true,
+			  container: document.body,
               content: loadingContent
             });
 
