@@ -136,6 +136,57 @@ define("hellow", [
 
         console.log("Selected EINs:", selectedData);
         alert("Selected:\n" + selectedData.map(d => `Name: ${d.name}, EIN: ${d.partNumber}`).join("\n"));
+		 const content = UWA.createElement('div', {
+      styles: { padding: '10px' }
+    });
+
+    const table = UWA.createElement('table', {
+      styles: {
+        width: '100%',
+        borderCollapse: 'collapse',
+        marginBottom: '10px'
+      }
+    });
+
+			const headerRow = UWA.createElement('tr');
+			headerRow.innerHTML = `
+			  <th style="border-bottom:1px solid #ccc;text-align:left;padding:6px;">Name</th>
+			  <th style="border-bottom:1px solid #ccc;text-align:left;padding:6px;">Part Number</th>`;
+			table.appendChild(headerRow);
+
+			selectedData.forEach(row => {
+			  const rowElement = UWA.createElement('tr');
+			  rowElement.innerHTML = `
+				<td style="padding:6px;border-bottom:1px solid #eee;">${row.name}</td>
+				<td style="padding:6px;border-bottom:1px solid #eee;">${row.partNumber}</td>`;
+			  table.appendChild(rowElement);
+			});
+
+			content.appendChild(table);
+
+			// Create popup buttons
+			const popupButtons = {
+			  'Set': function () {
+				console.log("Calling web service with:", selectedData);
+
+				// Simulate API call here
+				alert("✅ Web service called with " + selectedData.length + " rows.");
+
+				popup.destroy();
+			  },
+			  'Cancel': function () {
+				popup.destroy();
+			  }
+			};
+
+			// Show popup
+			const popup = new Popup({
+			  title: "Selected EINs",
+			  modal: true,
+			  buttons: popupButtons,
+			  content: content
+			});
+			popup.inject(document.body);
       }
     }
   });
