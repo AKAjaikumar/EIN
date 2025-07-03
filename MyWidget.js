@@ -162,15 +162,16 @@ define("hellow", [
 						confirmPopup.destroy();
 
 						// Show a loading popup
+						const loadingContent = UWA.createElement('div').setContent(
+						  '<div style="padding:10px;">Please wait... <span class="spinner"></span></div>'
+						);
 						const loadingPopup = new Popup({
 						  title: "Processing...",
 						  modal: true,
-						  const loadingContent = UWA.createElement('div').setContent(
-							  '<div style="padding:10px;">Please wait... <span class="spinner"></span></div>'
-							);
+						  content: loadingContent,
 						  container: uwaContainer
 						});
-
+						
 						loadingPopup.inject(widget.body);
 						const spinnerStyle = document.createElement("style");
 						spinnerStyle.textContent = `
