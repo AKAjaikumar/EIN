@@ -3,11 +3,11 @@ define("hellow", [
   "UWA/Drivers/Alone",
   "DS/WAFData/WAFData",
   "DS/PlatformAPI/PlatformAPI",
+  "UWA/Controls/Popup",
   "UWA/Controls/DataGrid",
   "DS/DataDragAndDrop/DataDragAndDrop",
-  "DS/i3DXCompassServices/i3DXCompassServices",
-  "UWA/Controls/Popup",
-], function (Core, Alone, WAFData, PlatformAPI, DataGrid, DataDnD, i3DXCompassServices, Popup) {
+  "DS/i3DXCompassServices/i3DXCompassServices"
+], function (Core, Alone, WAFData, PlatformAPI, Popup, DataGrid, DataDnD, i3DXCompassServices) {
   var grid;
   var rowsMap = {};
   var platformId;
