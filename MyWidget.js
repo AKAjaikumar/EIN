@@ -395,7 +395,7 @@ function callEINWebService(selectedIds, onComplete, onError) {
       onFailure: function () {
         console.error("Failed to get 3DSpace URL");
       }
-			
+		});
 }
 
 
