@@ -272,51 +272,7 @@ define("hellow", [
   }
 });
 
-function callEINWebService(selectedIds, onComplete, onError) {
-  i3DXCompassServices.getServiceUrl({
-      platformId: widget.getValue("x3dPlatformId"),
-      serviceName: "3DSpace",
-      onComplete: function (URL3DSpace) {
-        let baseUrl = typeof URL3DSpace === "string" ? URL3DSpace : URL3DSpace[0].url;
-        if (baseUrl.endsWith("/3dspace")) baseUrl = baseUrl.replace("/3dspace", "");
 
-        const csrfURL = baseUrl + "/resources/v1/application/CSRF";
-
-        WAFData.authenticatedRequest(csrfURL, {
-          method: "GET",
-          type: "json",
-          onComplete: function (csrfData) {
-            const csrfToken = csrfData.csrf.value;
-            const csrfHeader = csrfData.csrf.name;
-				  WAFData.authenticatedRequest('https://c032813d6e3c.ngrok-free.app/resources/v1/ELGI/restServices/BOMManagement/setEIN?ObjectID='+selectedIds, {
-					method: 'POST',
-					type: 'json',
-					headers: {
-					  'Content-Type': 'application/json',
-					  'SecurityContext': 'VPLMProjectLeader.Company Name.APTIV INDIA',
-					  [csrfHeader]: csrfToken
-					},
-					data: JSON.stringify(payload),
-					onComplete: function (response) {
-					  console.log("EIN Web Service Success:", response);
-					  onComplete && onComplete(response);
-					},
-					onFailure: function (error) {
-					  console.error("EIN Web Service Error:", error);
-					  onError && onError(error);
-					}
-				  });
-		},
-          onFailure: function (err) {
-            console.error("Failed to fetch CSRF token:", err);
-          }
-        });
-      },
-      onFailure: function () {
-        console.error("Failed to get 3DSpace URL");
-      }
-			
-}
   toolbar.appendChild(addButton);
   widget.body.appendChild(toolbar);
 
@@ -396,6 +352,51 @@ function callEINWebService(selectedIds, onComplete, onError) {
   }, 300);
 }
 
+function callEINWebService(selectedIds, onComplete, onError) {
+  i3DXCompassServices.getServiceUrl({
+      platformId: widget.getValue("x3dPlatformId"),
+      serviceName: "3DSpace",
+      onComplete: function (URL3DSpace) {
+        let baseUrl = typeof URL3DSpace === "string" ? URL3DSpace : URL3DSpace[0].url;
+        if (baseUrl.endsWith("/3dspace")) baseUrl = baseUrl.replace("/3dspace", "");
+
+        const csrfURL = baseUrl + "/resources/v1/application/CSRF";
+
+        WAFData.authenticatedRequest(csrfURL, {
+          method: "GET",
+          type: "json",
+          onComplete: function (csrfData) {
+            const csrfToken = csrfData.csrf.value;
+            const csrfHeader = csrfData.csrf.name;
+				  WAFData.authenticatedRequest('https://c032813d6e3c.ngrok-free.app/resources/v1/ELGI/restServices/BOMManagement/setEIN?ObjectID='+selectedIds, {
+					method: 'POST',
+					type: 'json',
+					headers: {
+					  'Content-Type': 'application/json',
+					  'SecurityContext': 'VPLMProjectLeader.Company Name.APTIV INDIA',
+					  [csrfHeader]: csrfToken
+					},
+					data: JSON.stringify(payload),
+					onComplete: function (response) {
+					  console.log("EIN Web Service Success:", response);
+					  onComplete && onComplete(response);
+					},
+					onFailure: function (error) {
+					  console.error("EIN Web Service Error:", error);
+					  onError && onError(error);
+					}
+				  });
+		},
+          onFailure: function (err) {
+            console.error("Failed to fetch CSRF token:", err);
+          }
+        });
+      },
+      onFailure: function () {
+        console.error("Failed to get 3DSpace URL");
+      }
+			
+}
 
 
 
