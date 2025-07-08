@@ -24,7 +24,6 @@ define("hellow", [
       widget.body.setStyle("padding", "20px");
       widget.body.setText("Drag a Physical Product here");
 
-      //createGrid([]);
 
       DataDnD.droppable(widget.body, {
         enter: function (el, event) {
@@ -81,7 +80,7 @@ define("hellow", [
 			  });
 			});
 		  } catch (e) {
-			console.error("❌ Failed to parse dropped data:", e);
+			console.error("Failed to parse dropped data:", e);
 		  }
 		}
       });
@@ -93,7 +92,7 @@ define("hellow", [
 
   widget.body.empty();
 
-  // Toolbar
+
   const toolbar = UWA.createElement('div', {
     class: 'toolbar',
     styles: {
@@ -211,7 +210,6 @@ define("hellow", [
 				title: "Set EIN",
 				message: "Do you want to proceed with setting EIN for the selected items?",
 				onConfirm: function () {
-				  // Show loading overlay
 				  const spinnerOverlay = UWA.createElement('div', {
 					styles: {
 					  position: 'fixed',
@@ -238,25 +236,34 @@ define("hellow", [
 					  fontWeight: 'bold'
 					}
 				  }).inject(spinnerOverlay);
-				  const rootIds = Object.values(rowsMap)
-					.filter(row => row.level === 0)
-					.map(row => row.id);
+				  
+				  // Call EIN Web Service 
+				  const selectedIds = Array.from(widget.body.querySelectorAll('.row-selector:checked'))
+									.map(cb => cb.getAttribute('data-id'));
+				  callEINWebService(selectedIds, () => {
+ 
+					const rootIds = Object.values(rowsMap)
+					  .filter(row => row.level === 0)
+					  .map(row => row.id);
 
-				  rowsMap = {};
-				  let pending = rootIds.length;
-				 
-				  setTimeout(() => {
+					rowsMap = {};
+					let pending = rootIds.length;
+
 					rootIds.forEach(rootId => {
-						fetchChildren(rootId, 0, null, () => {
-						  pending--;
-						  if (pending === 0) {
-							spinnerOverlay.remove();
-							alert("EIN updated successfully.");
-							updateDataGrid(); // ✅ this will now show updated Part Numbers
-						  }
-						});
+					  fetchChildren(rootId, 0, null, () => {
+						pending--;
+						if (pending === 0) {
+						  spinnerOverlay.remove();
+						  alert("EIN updated successfully.");
+						  updateDataGrid();
+						}
 					  });
-				  }, 2000);
+					});
+				  }, () => {
+					spinnerOverlay.remove();
+					alert("EIN update failed.");
+				  });
+				
 				}
 			  });
 
@@ -265,11 +272,54 @@ define("hellow", [
   }
 });
 
+function callEINWebService(selectedIds, onComplete, onError) {
+  i3DXCompassServices.getServiceUrl({
+      platformId: widget.getValue("x3dPlatformId"),
+      serviceName: "3DSpace",
+      onComplete: function (URL3DSpace) {
+        let baseUrl = typeof URL3DSpace === "string" ? URL3DSpace : URL3DSpace[0].url;
+        if (baseUrl.endsWith("/3dspace")) baseUrl = baseUrl.replace("/3dspace", "");
 
+        const csrfURL = baseUrl + "/resources/v1/application/CSRF";
+
+        WAFData.authenticatedRequest(csrfURL, {
+          method: "GET",
+          type: "json",
+          onComplete: function (csrfData) {
+            const csrfToken = csrfData.csrf.value;
+            const csrfHeader = csrfData.csrf.name;
+				  WAFData.authenticatedRequest('https://c032813d6e3c.ngrok-free.app/resources/v1/ELGI/restServices/BOMManagement/setEIN?ObjectID='+selectedIds, {
+					method: 'POST',
+					type: 'json',
+					headers: {
+					  'Content-Type': 'application/json',
+					  'SecurityContext': 'VPLMProjectLeader.Company Name.APTIV INDIA',
+					  [csrfHeader]: csrfToken
+					},
+					data: JSON.stringify(payload),
+					onComplete: function (response) {
+					  console.log("EIN Web Service Success:", response);
+					  onComplete && onComplete(response);
+					},
+					onFailure: function (error) {
+					  console.error("EIN Web Service Error:", error);
+					  onError && onError(error);
+					}
+				  });
+		},
+          onFailure: function (err) {
+            console.error("Failed to fetch CSRF token:", err);
+          }
+        });
+      },
+      onFailure: function () {
+        console.error("Failed to get 3DSpace URL");
+      }
+			
+}
   toolbar.appendChild(addButton);
   widget.body.appendChild(toolbar);
 
-  // Create scroll container before injecting
   const scrollContainer = UWA.createElement('div', {
     class: 'grid-scroll-container',
     styles: {
@@ -280,9 +330,8 @@ define("hellow", [
     }
   });
 
-  widget.body.appendChild(scrollContainer); // Attach scroll container first
+  widget.body.appendChild(scrollContainer); 
 
-  // Now create the DataGrid
   grid = new DataGrid({
     className: 'uwa-table',
     selectable: true,
@@ -334,10 +383,8 @@ define("hellow", [
     data: data
   });
 
-  // Inject DataGrid into scrollable container
   grid.inject(scrollContainer);
 
-  // Setup checkbox sync
   setTimeout(() => {
     const selectAllCheckbox = document.getElementById('select-all-checkbox');
     if (selectAllCheckbox) {
@@ -506,7 +553,7 @@ define("hellow", [
 				parentRow._expanded = true;
 
 				if (!children || children.length === 0) {
-				  callback && callback();  // <== always callback even if no children
+				  callback && callback();  
 				} else {
 				  let remaining = children.length;
 				  children.forEach(child => {
