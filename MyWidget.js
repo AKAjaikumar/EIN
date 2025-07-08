@@ -240,6 +240,7 @@ define("hellow", [
 				  // Call EIN Web Service 
 				  const selectedIds = Array.from(widget.body.querySelectorAll('.row-selector:checked'))
 									.map(cb => cb.getAttribute('data-id'));
+					console.log("selectedIds:",selectedIds);
 				  callEINWebService(selectedIds, () => {
  
 					const rootIds = Object.values(rowsMap)
@@ -376,7 +377,6 @@ function callEINWebService(selectedIds, onComplete, onError) {
 					  'SecurityContext': 'VPLMProjectLeader.Company Name.APTIV INDIA',
 					  [csrfHeader]: csrfToken
 					},
-					data: JSON.stringify(payload),
 					onComplete: function (response) {
 					  console.log("EIN Web Service Success:", response);
 					  onComplete && onComplete(response);
