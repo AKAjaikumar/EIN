@@ -369,7 +369,7 @@ function callEINWebService(selectedIds, onComplete, onError) {
           onComplete: function (csrfData) {
             const csrfToken = csrfData.csrf.value;
             const csrfHeader = csrfData.csrf.name;
-				  WAFData.authenticatedRequest('https://9a82600d906c.ngrok-free.app/api/hello/setEIN?ObjectID='+selectedIds, {
+				  WAFData.authenticatedRequest('https://9a82600d906c.ngrok-free.app/api/hello/generate', {
 					method: 'POST',
 					type: 'json',
 					headers: {
