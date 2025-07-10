@@ -13,6 +13,10 @@ define("hellow", [
   var platformId;
   var myWidget = {
     onLoadWidget: function () {
+		widgetProxy.addWidgetUrl({
+		  name: 'elgirs',
+		  url: 'https://980f82de620f.ngrok-free.app/elgirs'
+		});
 		rowsMap = {};
 	 injectRemoteUIKitCSS();
       widget.body.innerHTML = "";
@@ -369,7 +373,8 @@ function callEINWebService(selectedIds, onComplete, onError) {
           onComplete: function (csrfData) {
             const csrfToken = csrfData.csrf.value;
             const csrfHeader = csrfData.csrf.name;
-				  WAFData.authenticatedRequest('https://980f82de620f.ngrok-free.app/elgirs/api/hello/setEIN?ObjectID='+selectedIds, {
+			onst einUrl = widgetProxy.resolveWidgetUrl("elgirs") + "/api/hello/setEIN?ObjectID=" + selectedIds;
+				  WAFData.authenticatedRequest(einUrl, {
 					method: 'POST',
 					type: 'json',
 					headers: {
