@@ -369,7 +369,7 @@ function callEINWebService(selectedIds, onComplete, onError) {
           onComplete: function (csrfData) {
             const csrfToken = csrfData.csrf.value;
             const csrfHeader = csrfData.csrf.name;
-				  WAFData.authenticatedRequest('http://localhost:9090/elgirs/api/hello/setEIN?ObjectID='+selectedIds, {
+				  WAFData.authenticatedRequest('https://980f82de620f.ngrok-free.app/elgirs/api/hello/setEIN?ObjectID='+selectedIds, {
 					method: 'POST',
 					type: 'json',
 					headers: {
