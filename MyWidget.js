@@ -556,14 +556,20 @@ function callEINWebService(selectedIds, onComplete, onError) {
 									console.log("Class:", classLabel);
 									console.log("Library:", libraryLabel);
 									console.log("Path Hierarchy:", pathLabels.join(" > "));
+									if (pathLabels.includes("NON STANDARD")) {
+										const productGroupRCD = libraryInfo.attributes["ProductGroupRCD"] || "";
+										const itemCategoryRCD = libraryInfo.attributes["ItemCategoryRCD"] || "";
+										const drawingReference = libraryInfo.attributes["DrawingReference"] || "";
+										fetchRunningNumber(productGroupRCD+itemCategoryRCD+drawingReference, function(runningno) {
+											console.log("runningno:", runningno);
+										}
+									}
 								  })
 								  .catch(err => {
 									console.error("Error fetching labels:", err);
 								  });
 							}
-						  row.productGroupRCD = libraryInfo.attributes["ProductGroupRCD"] || "";
-						  row.itemCategoryRCD = libraryInfo.attributes["ItemCategoryRCD"] || "";
-						  row.drawingReference = libraryInfo.attributes["DrawingReference"] || "";
+						  
 						
 					  });
 					}
@@ -602,6 +608,51 @@ function callEINWebService(selectedIds, onComplete, onError) {
       }
     });
   }
+  
+	function fetchRunningNumber(sequence, callback) {
+	  i3DXCompassServices.getServiceUrl({
+		  platformId: widget.getValue("x3dPlatformId"),
+		  serviceName: "3DSpace",
+		  onComplete: function (URL3DSpace) {
+			let baseUrl = typeof URL3DSpace === "string" ? URL3DSpace : URL3DSpace[0].url;
+			if (baseUrl.endsWith("/3dspace")) baseUrl = baseUrl.replace("/3dspace", "");
+
+			const csrfURL = baseUrl + "/resources/v1/application/CSRF";
+
+			WAFData.authenticatedRequest(csrfURL, {
+			  method: "GET",
+			  type: "json",
+			  onComplete: function (csrfData) {
+				const csrfToken = csrfData.csrf.value;
+				const csrfHeader = csrfData.csrf.name;
+					  WAFData.authenticatedRequest('https://b9a982b4522d.ngrok-free.app/elgirs/api/hello/setEIN?ObjectID='+sequence, {
+						method: 'POST',
+						type: 'json',
+						headers: {
+						  'Content-Type': 'application/json',
+						  'SecurityContext': 'VPLMProjectLeader.Company Name.APTIV INDIA',
+						  [csrfHeader]: csrfToken
+						},
+						onComplete: function (response) {
+						  callback(response.runningNumber);
+						},
+						onFailure: function (error) {
+						  console.warn("No running number received.");
+					callback(null);
+						}
+					  });
+			},
+			  onFailure: function (err) {
+				console.error("Failed to fetch CSRF token:", err);
+			  }
+			});
+		  },
+		  onFailure: function () {
+			console.error("Failed to get 3DSpace URL");
+		  }
+			});
+	}
+
   function fetchLabelsFromIDs(physicalId) {
     return new Promise((resolve, reject) => {
         i3DXCompassServices.getServiceUrl({
