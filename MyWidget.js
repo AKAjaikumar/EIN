@@ -319,17 +319,10 @@ define("hellow", [
         key: 'enterpriseItemNumber',
         text: 'Enterprise Item Number',
         dataIndex: 'enterpriseItemNumber',
-		cellView: function (cell) {
-			const value = cell.model.get('enterpriseItemNumber');
-			const isGenerated = cell.model.get('isGeneratedEIN');
+		format: function (val, cellData, fullRowData) {
+			const isGenerated = fullRowData.isGeneratedEIN;
 			const color = isGenerated ? 'orange' : 'black';
-
-			return new UWA.Controls.Label({
-			  value: value || '',
-			  styles: {
-				color: color
-			  }
-			});
+			return `<span style="color:${color};">${val || ''}</span>`;
 		  }
       },
       {
