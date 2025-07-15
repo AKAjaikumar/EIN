@@ -318,7 +318,19 @@ define("hellow", [
       {
         key: 'enterpriseItemNumber',
         text: 'Enterprise Item Number',
-        dataIndex: 'enterpriseItemNumber'
+        dataIndex: 'enterpriseItemNumber',
+		cellView: function (cell) {
+			const value = cell.model.get('enterpriseItemNumber');
+			const isGenerated = cell.model.get('isGeneratedEIN');
+			const color = isGenerated ? 'orange' : 'black';
+
+			return new UWA.Controls.Label({
+			  value: value || '',
+			  styles: {
+				color: color
+			  }
+			});
+		  }
       },
       {
         key: 'maturityState',
@@ -555,7 +567,7 @@ function callEINWebService(selectedIds, onComplete, onError) {
 
 									fetchRunningNumber(sequenceKey, function(runningno) {
 									  const finalEIN = sequenceKey + runningno;
-									  const row = buildRow(childObj, parentRow, finalEIN, level);
+									  const row = buildRow(childObj, parentRow, finalEIN, level, true);
 									  rowsMap[childObj.resourceid] = row;
 									  resolve(row);
 									});
@@ -615,7 +627,7 @@ function callEINWebService(selectedIds, onComplete, onError) {
       }
     });
   }
-  function buildRow(obj, parentRow, ein, level) {
+  function buildRow(obj, parentRow, ein, level,isGeneratedEIN = false) {
   return {
     id: obj.resourceid,
     name: obj["ds6w:label"],
@@ -623,6 +635,7 @@ function callEINWebService(selectedIds, onComplete, onError) {
     created: obj["ds6w:created"],
     level: level,
     enterpriseItemNumber: ein || "",
+	isGeneratedEIN,
     maturityState: obj["ds6w:status"],
     hasChildren: true,
     _expanded: true,
