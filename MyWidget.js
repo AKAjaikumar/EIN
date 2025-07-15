@@ -618,7 +618,7 @@ function callEINWebService(selectedIds, onComplete, onError) {
                         const csrfToken = csrfData.csrf.value;
                         const csrfHeader = csrfData.csrf.name;
 
-                        const navigateUrl = baseUrl + "/enovia/cvservlet/navigate";
+                        const navigateUrl = baseUrl + "/cvservlet/navigate";
 
                         const requestPayload = {
                             attributes: ["ds6w:label", "physicalid", "ds6w:type", "ds6w:classification"],
