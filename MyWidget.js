@@ -564,6 +564,9 @@ function callEINWebService(selectedIds, onComplete, onError) {
 										fetchRunningNumber(sequenceKey, function(runningno) {
 											console.log("runningno:", runningno);
 											row.enterpriseItemNumber = sequenceKey + runningno;
+											if (grid && typeof grid.model !== "undefined") {
+											  updateDataGrid();
+											}
 										});
 									}
 								  })
