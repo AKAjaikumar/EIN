@@ -548,8 +548,15 @@ function callEINWebService(selectedIds, onComplete, onError) {
 					  rowsMap[childObj.resourceid] = row;
 					  fetchLibraryForPart(childObj.resourceid, function(libraryInfo) {
 						  console.log("libraryInfo:"+libraryInfo);
-						  row.library = libraryInfo.label;
+						  const classId = libraryInfo.classId;
+						  if (classId) {
+							fetchLabelsFromIDs(classId).then(classTitle => {
+								console.log("Fetched class title:", classTitle);
 
+							}).catch(err => {
+								console.error("Label fetch failed for classId " + classId, err);
+							});
+						}
  
 						  row.productGroupRCD = libraryInfo.attributes["ProductGroupRCD"] || "";
 						  row.itemCategoryRCD = libraryInfo.attributes["ItemCategoryRCD"] || "";
@@ -592,6 +599,59 @@ function callEINWebService(selectedIds, onComplete, onError) {
       }
     });
   }
+  function fetchLabelsFromIDs(id) {
+		return new Promise((resolve, reject) => {
+			i3DXCompassServices.getServiceUrl({
+				platformId: platformId,
+				serviceName: '3DSpace',
+				onComplete: function (URL3DSpace) {
+					let baseUrl = typeof URL3DSpace === "string" ? URL3DSpace : URL3DSpace[0].url;
+					if (baseUrl.endsWith('/3dspace')) {
+						baseUrl = baseUrl.replace('/3dspace', '');
+					}
+
+					const csrfURL = baseUrl + '/resources/v1/application/CSRF';
+
+					WAFData.authenticatedRequest(csrfURL, {
+						method: 'GET',
+						type: 'json',
+						onComplete: function (csrfData) {
+							const csrfToken = csrfData.csrf.value;
+							const csrfHeaderName = csrfData.csrf.name;
+							const getLibURL = baseUrl + '/resources/v1/modeler/dslib/dslib:Library/' + id;
+
+							WAFData.authenticatedRequest(getLibURL, {
+								method: 'GET',
+								type: 'json',
+								headers: {
+									'Content-Type': 'application/json',
+									'Accept': 'application/json',
+									'SecurityContext': "ctx::VPLMProjectLeader.Company Name.APTIV INDIA",
+									[csrfHeaderName]: csrfToken
+								},
+								onComplete: function (response) {
+									if (response && response.member && response.member.length > 0) {
+										resolve(response.member[0].title); 
+									} else {
+										resolve('');
+									}
+								},
+								onFailure: function (err) {
+									reject("Failed to fetch label: " + err);
+								}
+							});
+						},
+						onFailure: function (err) {
+							reject("CSRF token fetch failed: " + err);
+						}
+					});
+				},
+				onFailure: function () {
+					reject("3DSpace URL fetch failed");
+				}
+			});
+		});
+	}
   function fetchLibraryForPart(physicalId, callback) {
   const platformId = widget.getValue("x3dPlatformId");
 
@@ -613,12 +673,12 @@ function callEINWebService(selectedIds, onComplete, onError) {
         },
         onComplete: function(data) {
           try {
-            const classKey = Object.keys(data)[0]; // "0"
+            const classKey = Object.keys(data)[0];
             const classData = data[classKey];
 
-            if (!classData) return callback({ label: "", attributes: {} });
+            if (!classData) return callback({ classId: "", attributes: {} });
 
-            const label = classData.label || "";
+            const classId = classData.id || "";
             const attributes = {};
 
             if (Array.isArray(classData.attribute)) {
@@ -631,7 +691,7 @@ function callEINWebService(selectedIds, onComplete, onError) {
               });
             }
 
-            callback({ label, attributes });
+            callback({ classId, attributes });
 
           } catch (err) {
             console.error("Error parsing classification response", err);
