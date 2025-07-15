@@ -495,9 +495,9 @@ function callEINWebService(selectedIds, onComplete, onError) {
 					console.log("rootPartNumber:"+rootPartNumber);
 					if (rowsMap[pid]) {
    
-					rowsMap[pid].enterpriseItemNumber = rootPartNumber;
-					rowsMap[pid].maturityState = rootObj["ds6w:status"];
-					parentRow = rowsMap[pid];
+						rowsMap[pid].enterpriseItemNumber = rootPartNumber;
+						rowsMap[pid].maturityState = rootObj["ds6w:status"];
+						parentRow = rowsMap[pid];
 					} else {
 				   
 					const rootRow = {
@@ -546,6 +546,16 @@ function callEINWebService(selectedIds, onComplete, onError) {
 					  };
 					  children.push(row);
 					  rowsMap[childObj.resourceid] = row;
+					  fetchLibraryForPart(childObj.resourceid, function(libraryValue) {
+						  console.log("libraryValue:"+libraryValue);
+						  row.library = libraryInfo.label;
+
+ 
+						  row.productGroupRCD = libraryInfo.attributes["ProductGroupRCD"] || "";
+						  row.itemCategoryRCD = libraryInfo.attributes["ItemCategoryRCD"] || "";
+						  row.drawingReference = libraryInfo.attributes["DrawingReference"] || "";
+						
+					  });
 					}
 				  }
 				});
@@ -582,6 +592,66 @@ function callEINWebService(selectedIds, onComplete, onError) {
       }
     });
   }
+  function fetchLibraryForPart(physicalId, callback) {
+  const platformId = widget.getValue("x3dPlatformId");
+
+  i3DXCompassServices.getServiceUrl({
+    platformId: platformId,
+    serviceName: "3DSpace",
+    onComplete: function(URL3DSpace) {
+      let baseUrl = typeof URL3DSpace === "string" ? URL3DSpace : URL3DSpace[0].url;
+      if (baseUrl.endsWith("/3dspace")) baseUrl = baseUrl.replace("/3dspace", "");
+
+      const url = baseUrl + "/resources/IPClassificationReuse/classifiedItem/" + physicalId + "/getAllClassesAndAttributes?xrequestedwith=xmlhttprequest";
+
+      WAFData.authenticatedRequest(url, {
+        method: "GET",
+        type: "json",
+        headers: {
+          "Accept": "application/json",
+          "x-requested-with": "xmlhttprequest"
+        },
+        onComplete: function(data) {
+          try {
+            const classKey = Object.keys(data)[0]; // "0"
+            const classData = data[classKey];
+
+            if (!classData) return callback({ label: "", attributes: {} });
+
+            const label = classData.label || "";
+            const attributes = {};
+
+            if (Array.isArray(classData.attribute)) {
+              classData.attribute.forEach(attr => {
+                const attrName = attr.name || "";
+                const defaultValue = attr.default || "";
+                if (attrName) {
+                  attributes[attrName] = defaultValue;
+                }
+              });
+            }
+
+            callback({ label, attributes });
+
+          } catch (err) {
+            console.error("Error parsing classification response", err);
+            callback({ label: "", attributes: {} });
+          }
+        },
+        onFailure: function(err) {
+          console.warn("Failed to get classification for " + physicalId, err);
+          callback({ label: "", attributes: {} });
+        }
+      });
+    },
+    onFailure: function() {
+      console.error("Could not get 3DSpace URL");
+      callback({ label: "", attributes: {} });
+    }
+  });
+}
+
+
   function getAttributeValue(attributesArray, attrName) {
 	  for (let i = 0; i < attributesArray.length; i++) {
 		if (attributesArray[i].name === attrName) {
