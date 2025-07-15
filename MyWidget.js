@@ -634,7 +634,14 @@ function callEINWebService(selectedIds, onComplete, onError) {
 						  [csrfHeader]: csrfToken
 						},
 						onComplete: function (response) {
-						  callback(response.runningNumber);
+						  let status = response.status;
+						  let runningNumber = null;
+
+						  if (status && status.includes(":")) {
+							runningNumber = status.split(":")[1];
+						  }
+
+						  callback(runningNumber);
 						},
 						onFailure: function (error) {
 						  console.warn("No running number received.");
