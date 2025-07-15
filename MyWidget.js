@@ -547,7 +547,7 @@ function callEINWebService(selectedIds, onComplete, onError) {
 					  children.push(row);
 					  rowsMap[childObj.resourceid] = row;
 					  fetchLibraryForPart(childObj.resourceid, function(libraryInfo) {
-						  console.log("libraryValue:"+libraryValue);
+						  console.log("libraryInfo:"+libraryInfo);
 						  row.library = libraryInfo.label;
 
  
