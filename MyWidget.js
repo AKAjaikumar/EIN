@@ -550,7 +550,7 @@ function callEINWebService(selectedIds, onComplete, onError) {
 						  
 						  const classId = libraryInfo.classId;
 						  console.log("classId:"+classId);
-						  if(classId)
+						  if(classId) {
 							fetchLabelsFromIDs(classId)
 								  .then(({ classLabel, libraryLabel, pathLabels }) => {
 									console.log("Class:", classLabel);
