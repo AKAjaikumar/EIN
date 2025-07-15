@@ -649,7 +649,8 @@ function callEINWebService(selectedIds, onComplete, onError) {
                                 "Content-Type": "application/json",
                                 Accept: "application/json",
                                 SecurityContext: "ctx::VPLMProjectLeader.Company Name.APTIV INDIA",
-                                tenant: platformId
+                                tenant: platformId,
+								"x-requested-with": "xmlhttprequest"
                             },
                             onComplete: function (resp) {
                                 try {
@@ -663,7 +664,8 @@ function callEINWebService(selectedIds, onComplete, onError) {
                                     resolve({
                                         classLabel: inputLabel,
                                         libraryLabel: libraryLabel,
-                                        pathLabels: parentPathLabels
+                                        pathLabels: parentPathLabels,
+										[csrfHeader]: csrfToken
                                     });
                                 } catch (e) {
                                     reject("Unexpected navigate response format: " + e);
