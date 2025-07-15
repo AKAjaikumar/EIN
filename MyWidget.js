@@ -319,11 +319,14 @@ define("hellow", [
         key: 'enterpriseItemNumber',
         text: 'Enterprise Item Number',
         dataIndex: 'enterpriseItemNumber',
-		format: function (val, cellData, fullRowData) {
-			const isGenerated = fullRowData.isGeneratedEIN;
-			const color = isGenerated ? 'orange' : 'black';
-			return `<span style="color:${color};">${val || ''}</span>`;
-		  }
+		format: function (val) {
+			if (typeof val === 'object' && val !== null) {
+			  const color = val.isGenerated ? 'orange' : 'black';
+			  return `<span style="color:${color};">${val.value || ''}</span>`;
+			} else {
+			  return `<span>${val || ''}</span>`;
+			}
+		}
       },
       {
         key: 'maturityState',
