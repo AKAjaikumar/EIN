@@ -318,15 +318,7 @@ define("hellow", [
       {
         key: 'enterpriseItemNumber',
         text: 'Enterprise Item Number',
-        dataIndex: 'enterpriseItemNumber',
-		format: function (val) {
-			if (typeof val === 'object' && val !== null) {
-			  const color = val.isGenerated ? 'orange' : 'black';
-			  return `<span style="color:${color};">${val.value || ''}</span>`;
-			} else {
-			  return `<span>${val || ''}</span>`;
-			}
-		}
+        dataIndex: 'enterpriseItemNumber'
       },
       {
         key: 'maturityState',
@@ -563,7 +555,7 @@ function callEINWebService(selectedIds, onComplete, onError) {
 
 									fetchRunningNumber(sequenceKey, function(runningno) {
 									  const finalEIN = sequenceKey + runningno;
-									  const row = buildRow(childObj, parentRow, finalEIN, level, true);
+									  const row = buildRow(childObj, parentRow, finalEIN, level);
 									  rowsMap[childObj.resourceid] = row;
 									  resolve(row);
 									});
@@ -623,7 +615,7 @@ function callEINWebService(selectedIds, onComplete, onError) {
       }
     });
   }
-  function buildRow(obj, parentRow, ein, level,isGeneratedEIN = false) {
+  function buildRow(obj, parentRow, ein, level) {
   return {
     id: obj.resourceid,
     name: obj["ds6w:label"],
@@ -631,7 +623,6 @@ function callEINWebService(selectedIds, onComplete, onError) {
     created: obj["ds6w:created"],
     level: level,
     enterpriseItemNumber: ein || "",
-	isGeneratedEIN,
     maturityState: obj["ds6w:status"],
     hasChildren: true,
     _expanded: true,
