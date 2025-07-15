@@ -560,8 +560,10 @@ function callEINWebService(selectedIds, onComplete, onError) {
 										const productGroupRCD = libraryInfo.attributes["ProductGroupRCD"] || "";
 										const itemCategoryRCD = libraryInfo.attributes["ItemCategoryRCD"] || "";
 										const drawingReference = libraryInfo.attributes["DrawingReference"] || "";
-										fetchRunningNumber(productGroupRCD+itemCategoryRCD+drawingReference, function(runningno) {
+										const sequenceKey = productGroupRCD + itemCategoryRCD + drawingReference;
+										fetchRunningNumber(sequenceKey, function(runningno) {
 											console.log("runningno:", runningno);
+											row.enterpriseItemNumber = sequenceKey + runningno;
 										});
 									}
 								  })
