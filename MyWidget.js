@@ -620,7 +620,7 @@ function callEINWebService(selectedIds, onComplete, onError) {
                         const csrfToken = csrfData.csrf.value;
                         const csrfHeader = csrfData.csrf.name;
 
-                        const classURL = baseUrl + "/resources/v1/modeler/dslib/dslib:Class/" + classId + "?$mask=dslib:ExpandClassesDetailsMask";
+                        const classURL = baseUrl + "/resources/v1/modeler/dslib/dslib:Class/" + classId + "?$mask=dslib:ExpandClassesDetailsMask&$depth=3";
 
                         WAFData.authenticatedRequest(classURL, {
                             method: "GET",
