@@ -549,17 +549,15 @@ function callEINWebService(selectedIds, onComplete, onError) {
 					  fetchLibraryForPart(childObj.resourceid, function(libraryInfo) {
 						  console.log("libraryInfo:"+libraryInfo);
 						  const classId = libraryInfo.classId;
-						  if (classId) {
 							fetchLabelsFromIDs(classId)
-									  .then(({ classLabel, libraryLabel, pathLabels }) => {
-										console.log("Class:", classLabel);
-										console.log("Library:", libraryLabel);
-										console.log("Path Hierarchy:", pathLabels.join(" > "));
-									  })
-									  .catch(err => {
-										console.error("Error fetching labels:", err);
-									  });
-						}
+								  .then(({ classLabel, libraryLabel, pathLabels }) => {
+									console.log("Class:", classLabel);
+									console.log("Library:", libraryLabel);
+									console.log("Path Hierarchy:", pathLabels.join(" > "));
+								  })
+								  .catch(err => {
+									console.error("Error fetching labels:", err);
+								  });
  
 						  row.productGroupRCD = libraryInfo.attributes["ProductGroupRCD"] || "";
 						  row.itemCategoryRCD = libraryInfo.attributes["ItemCategoryRCD"] || "";
@@ -602,7 +600,7 @@ function callEINWebService(selectedIds, onComplete, onError) {
       }
     });
   }
-  function fetchLabelsFromIDs(classId) {
+  function fetchLabelsFromIDs(physicalId) {
     return new Promise((resolve, reject) => {
         i3DXCompassServices.getServiceUrl({
             platformId: platformId,
@@ -614,57 +612,79 @@ function callEINWebService(selectedIds, onComplete, onError) {
                 const csrfURL = baseUrl + "/resources/v1/application/CSRF";
 
                 WAFData.authenticatedRequest(csrfURL, {
-                    method: "GET",
-                    type: "json",
+                    method: 'GET',
+                    type: 'json',
                     onComplete: function (csrfData) {
                         const csrfToken = csrfData.csrf.value;
                         const csrfHeader = csrfData.csrf.name;
 
-                        const classURL = baseUrl + "/resources/v1/modeler/dslib/dslib:Class/" + classId + "?$mask=dslib:ClassMask";
+                        const navigateUrl = baseUrl + "/enovia/cvservlet/navigate";
 
-                        WAFData.authenticatedRequest(classURL, {
-                            method: "GET",
+                        const requestPayload = {
+                            attributes: ["ds6w:label", "physicalid", "ds6w:type", "ds6w:classification"],
+                            input_physical_ids: [physicalId],
+                            label: "FetchClassParents" + Date.now(),
+                            locale: "en",
+                            patternFlags: {
+                                GET_PARENT: { flags: ["returnPaths"] }
+                            },
+                            patterns: {
+                                GET_PARENT: [{ id: 2, iter: -1 }]
+                            },
+                            primitives: [
+                                { navigate_to_rel: { id: 1 } },
+                                { navigate_from_rel: { id: 2 } }
+                            ],
+                            source: ["3dspace"],
+                            start: 0,
+                            tenant: platformId,
+                            version: 3
+                        };
+
+                        WAFData.authenticatedRequest(navigateUrl, {
+                            method: "POST",
                             type: "json",
+                            data: JSON.stringify(requestPayload),
                             headers: {
                                 "Content-Type": "application/json",
-                                "Accept": "application/json",
-                                "SecurityContext": "ctx::VPLMProjectLeader.Company Name.APTIV INDIA",
-                                [csrfHeader]: csrfToken
+                                Accept: "application/json",
+                                SecurityContext: "ctx::VPLMProjectLeader.Company Name.APTIV INDIA",
+                                tenant: platformId
                             },
-                            onComplete: function (response) {
+                            onComplete: function (resp) {
                                 try {
-                                    if (response && response.member && response.member.length > 0) {
-                                        const classInfo = response.member[0];
-                                        const title = classInfo.title || '';
-                                        const type = classInfo.type || '';
-                                        const id = classInfo.id;
+                                    const result = resp.result?.[0];
+                                    const inputLabel = result.input_object?.["ds6w:label"] || "";
+                                    const parents = result.outputs?.GET_PARENT || [];
 
-                                        resolve({ title, type, id });
-                                    } else {
-                                        resolve({ title: '', type: '', id: classId });
-                                    }
+                                    const libraryLabel = parents[0]?.["ds6w:label"] || "";
+                                    const parentPathLabels = parents[0]?.paths?.[0]?.map(p => p["ds6w:label"]) || [];
+
+                                    resolve({
+                                        classLabel: inputLabel,
+                                        libraryLabel: libraryLabel,
+                                        pathLabels: parentPathLabels
+                                    });
                                 } catch (e) {
-                                    reject("Error parsing response: " + e);
+                                    reject("Unexpected navigate response format: " + e);
                                 }
                             },
                             onFailure: function (err) {
-                                reject("Failed to fetch class: " + JSON.stringify(err));
+                                reject("Navigate API failed: " + JSON.stringify(err));
                             }
                         });
                     },
                     onFailure: function (err) {
-                        reject("Failed to get CSRF token: " + JSON.stringify(err));
+                        reject("CSRF fetch failed: " + JSON.stringify(err));
                     }
                 });
             },
             onFailure: function () {
-                reject("Failed to get 3DSpace URL");
+                reject("3DSpace URL fetch failed");
             }
         });
     });
 }
-
-
   function fetchLibraryForPart(physicalId, callback) {
   const platformId = widget.getValue("x3dPlatformId");
 
