@@ -550,6 +550,7 @@ function callEINWebService(selectedIds, onComplete, onError) {
 						  
 						  const classId = libraryInfo.classId;
 						  console.log("classId:"+classId);
+						  if(classId)
 							fetchLabelsFromIDs(classId)
 								  .then(({ classLabel, libraryLabel, pathLabels }) => {
 									console.log("Class:", classLabel);
@@ -559,7 +560,7 @@ function callEINWebService(selectedIds, onComplete, onError) {
 								  .catch(err => {
 									console.error("Error fetching labels:", err);
 								  });
- 
+							}
 						  row.productGroupRCD = libraryInfo.attributes["ProductGroupRCD"] || "";
 						  row.itemCategoryRCD = libraryInfo.attributes["ItemCategoryRCD"] || "";
 						  row.drawingReference = libraryInfo.attributes["DrawingReference"] || "";
