@@ -524,65 +524,67 @@ function callEINWebService(selectedIds, onComplete, onError) {
 				  }
 				});
 
-				results.forEach(item => {
-				  if (item.type === "VPMInstance" && item.from === pid) {
-					const childObj = objectMap[item.to];
-					if (childObj) {
-					const partNumber = childObj["ds6wg:EnterpriseExtension.V_PartNumber"]
-								|| (childObj.attributes ? getAttributeValue(childObj.attributes, "ds6wg:EnterpriseExtension.V_PartNumber") : '');
-						console.log("partNumber=="+partNumber);
-					  const row = {
-						id: childObj.resourceid,
-						name: childObj["ds6w:label"],
-						type: childObj["type"],
-						created: childObj["ds6w:created"],
-						level: level,
-						enterpriseItemNumber: partNumber,
-						maturityState: childObj["ds6w:status"] ,
-						hasChildren: true,
-						_expanded: true,
-						expandcol: '', 
-						parentId: parentRow ? parentRow.id : null
-					  };
-					  children.push(row);
-					  rowsMap[childObj.resourceid] = row;
-					  fetchLibraryForPart(childObj.resourceid, function(libraryInfo) {
-						  
-						  const classId = libraryInfo.classId;
-						  console.log("classId:"+classId);
-						  if(classId) {
-							fetchLabelsFromIDs(classId)
-								  .then(({ classLabel, libraryLabel, pathLabels }) => {
-									console.log("Class:", classLabel);
-									console.log("Library:", libraryLabel);
-									console.log("Path Hierarchy:", pathLabels.join(" > "));
-									if (pathLabels.includes("NON STANDARD")) {
-										const productGroupRCD = libraryInfo.attributes["ProductGroupRCD"] || "";
-										const itemCategoryRCD = libraryInfo.attributes["ItemCategoryRCD"] || "";
-										const drawingReference = libraryInfo.attributes["DrawingReference"] || "";
-										const sequenceKey = productGroupRCD + itemCategoryRCD + drawingReference;
-										fetchRunningNumber(sequenceKey, function(runningno) {
-											console.log("runningno:", runningno);
-											row.enterpriseItemNumber = sequenceKey + runningno;
-											if (grid && typeof grid.model !== "undefined") {
-											  updateDataGrid();
-											}
-										});
-									}
-								  })
-								  .catch(err => {
-									console.error("Error fetching labels:", err);
-								  });
-							}
-						  
-						
-					  });
-					}
-				  }
-				});
+				const childrenPromises = results.map(item => {
+					  if (item.type === "VPMInstance" && item.from === pid) {
+						const childObj = objectMap[item.to];
+						if (!childObj) return null;
 
-               parentRow._children = children || [];
-				parentRow._expanded = true;
+						return new Promise((resolve) => {
+						  let partNumber = childObj["ds6wg:EnterpriseExtension.V_PartNumber"]
+							|| (childObj.attributes ? getAttributeValue(childObj.attributes, "ds6wg:EnterpriseExtension.V_PartNumber") : '');
+
+						  if (partNumber) {
+							const row = buildRow(childObj, parentRow, partNumber, level);
+							rowsMap[childObj.resourceid] = row;
+							resolve(row);
+						  } else {
+							fetchLibraryForPart(childObj.resourceid, function(libraryInfo) {
+							  const classId = libraryInfo.classId;
+							  if (!classId) {
+								resolve(buildRow(childObj, parentRow, "", level));
+								return;
+							  }
+
+							  fetchLabelsFromIDs(classId)
+								.then(({ pathLabels }) => {
+								  if (pathLabels.includes("NON STANDARD")) {
+									const productGroupRCD = libraryInfo.attributes["ProductGroupRCD"] || "";
+									const itemCategoryRCD = libraryInfo.attributes["ItemCategoryRCD"] || "";
+									const drawingReference = libraryInfo.attributes["DrawingReference"] || "";
+									const sequenceKey = productGroupRCD + itemCategoryRCD + drawingReference;
+
+									fetchRunningNumber(sequenceKey, function(runningno) {
+									  const finalEIN = sequenceKey + runningno;
+									  const row = buildRow(childObj, parentRow, finalEIN, level);
+									  rowsMap[childObj.resourceid] = row;
+									  resolve(row);
+									});
+								  } else {
+									const row = buildRow(childObj, parentRow, "", level);
+									rowsMap[childObj.resourceid] = row;
+									resolve(row);
+								  }
+								})
+								.catch(() => {
+								  const row = buildRow(childObj, parentRow, "", level);
+								  rowsMap[childObj.resourceid] = row;
+								  resolve(row);
+								});
+							});
+						  }
+						});
+					  } else {
+						return null;
+					  }
+					});
+
+					Promise.all(childrenPromises.filter(Boolean)).then(rows => {
+					  const children = rows;
+					  parentRow._children = children;
+					  parentRow._expanded = true;
+					  updateDataGrid(); // now all EINs are available
+					  callback && callback();
+					});
 
 				if (!children || children.length === 0) {
 				  callback && callback();  
@@ -613,7 +615,21 @@ function callEINWebService(selectedIds, onComplete, onError) {
       }
     });
   }
-  
+  function buildRow(obj, parentRow, ein, level) {
+  return {
+    id: obj.resourceid,
+    name: obj["ds6w:label"],
+    type: obj["type"],
+    created: obj["ds6w:created"],
+    level: level,
+    enterpriseItemNumber: ein || "",
+    maturityState: obj["ds6w:status"],
+    hasChildren: true,
+    _expanded: true,
+    expandcol: '',
+    parentId: parentRow ? parentRow.id : null
+  };
+}
 	function fetchRunningNumber(sequence, callback) {
 	  i3DXCompassServices.getServiceUrl({
 		  platformId: widget.getValue("x3dPlatformId"),
