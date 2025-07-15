@@ -562,7 +562,7 @@ function callEINWebService(selectedIds, onComplete, onError) {
 										const drawingReference = libraryInfo.attributes["DrawingReference"] || "";
 										fetchRunningNumber(productGroupRCD+itemCategoryRCD+drawingReference, function(runningno) {
 											console.log("runningno:", runningno);
-										}
+										});
 									}
 								  })
 								  .catch(err => {
