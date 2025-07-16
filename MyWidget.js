@@ -368,15 +368,28 @@ function fetchEngItemDetails(pid, onSuccess, onError) {
 					  let pending = rootIds.length;
 
 					  rootIds.forEach(rootId => {
-						fetchChildren(rootId, 0, null, () => {
-						  pending--;
-						  if (pending === 0) {
-							spinnerOverlay.remove();
-							alert("EIN update completed.");
-							updateDataGrid();
-						  }
+						  fetchEngItemDetails(rootId, (engItem) => {
+							const updatedEIN = engItem?.partNumber || '';
+
+							if (rowsMap[rootId]) {
+							  rowsMap[rootId].enterpriseItemNumber = updatedEIN;
+							}
+
+							pending--;
+							if (pending === 0) {
+							  spinnerOverlay.remove();
+							  alert("EIN update completed.");
+							  updateDataGrid();
+							}
+						  }, (err) => {
+							console.error("Failed to fetch EngItem:", rootId, err);
+							pending--;
+							if (pending === 0) {
+							  spinnerOverlay.remove();
+							  updateDataGrid();
+							}
+						  });
 						});
-					  });
 					}
 				
 				}
