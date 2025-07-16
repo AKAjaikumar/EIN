@@ -327,6 +327,8 @@ function fetchEngItemDetails(pid, onSuccess, onError) {
 						const classId = libraryInfo.classId;
 						console.log("classId:",classId);
 						if (!classId) {
+							const objName = rowsMap[id]?.name || id;
+							alert(`Object "${objName}" is not classified. EIN cannot be set.`);
 						  console.warn("No classification found for:", id);
 						  remaining--;
 						  if (remaining === 0) triggerFinalRefresh();
