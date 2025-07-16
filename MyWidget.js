@@ -368,34 +368,34 @@ function fetchEngItemDetails(pid, onSuccess, onError) {
 					  let pending = rootIds.length;
 
 					  rootIds.forEach(rootId => {
-						  fetchEngItemDetails(rootId, (engItem) => {
-							const updatedEIN = engItem?.partNumber || '';
+						  fetchEngItemDetails(rootId, (response) => {
+							  const item = response?.member?.[0];
+							  const updatedEIN = item?.["dseng:EnterpriseReference"]?.partNumber || '';
 
-							if (rowsMap[rootId]) {
-							   const item = response?.member?.[0];
-								  if (item) {
-									rowsMap[rootId].id = item.id;
-									rowsMap[rootId].name = item.name;
-									rowsMap[rootId].level = item.level || '1';
-									rowsMap[rootId].maturityState = item.state || '';
-									rowsMap[rootId].enterpriseItemNumber = item["dseng:EnterpriseReference"]?.partNumber || '';
-								  }
-							}
+							  if (item && rowsMap[rootId]) {
+								rowsMap[rootId].id = item.id;
+								rowsMap[rootId].name = item.name;
+								rowsMap[rootId].title = item.title;
+								rowsMap[rootId].level = item.level || '1';
+								rowsMap[rootId].maturityState = item.state || '';
+								rowsMap[rootId].enterpriseItemNumber = updatedEIN;
+							  }
 
-							pending--;
-							if (pending === 0) {
-							  spinnerOverlay.remove();
-							  alert("EIN update completed.");
-							  updateDataGrid();
-							}
-						  }, (err) => {
-							console.error("Failed to fetch EngItem:", rootId, err);
-							pending--;
-							if (pending === 0) {
-							  spinnerOverlay.remove();
-							  updateDataGrid();
-							}
-						  });
+							  pending--;
+							  if (pending === 0) {
+								spinnerOverlay.remove();
+								alert("EIN update completed.");
+								updateDataGrid();
+							  }
+							}, (err) => {
+							  console.error("Failed to fetch EngItem:", rootId, err);
+							  pending--;
+							  if (pending === 0) {
+								spinnerOverlay.remove();
+								updateDataGrid();
+							  }
+							});
+
 						});
 					}
 				
