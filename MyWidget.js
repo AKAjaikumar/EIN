@@ -58,35 +58,99 @@ define("hellow", [
 			  }
 
 			  const isNew = !rowsMap[pid];
-			  const rootRow = {
-				id: pid,
-				name: engItem?.displayName || "Root",
-				type: engItem?.objectType || "VPMReference",
-				created: engItem?.created || new Date().toISOString(),
-				level: 0,
-				enterpriseItemNumber: '',
-				hasChildren: true,
-				_expanded: true,
-				parentId: null
-			  };
+			  const proceedWithDrop = (createdValue) => {
+					  const rootRow = {
+						id: pid,
+						name: engItem?.displayName || "Root",
+						type: engItem?.objectType || "VPMReference",
+						created: createdValue || new Date().toISOString(),
+						level: 0,
+						enterpriseItemNumber: '',
+						hasChildren: true,
+						_expanded: true,
+						parentId: null
+					  };
 
-			  rowsMap[pid] = rootRow;
+					  rowsMap[pid] = rootRow;
 
-			  fetchChildren(pid, 1, rootRow, function () {
-				dropCount--;
-				if (dropCount === 0) {
-				  updateDataGrid(); 
+					  fetchChildren(pid, 1, rootRow, function () {
+						dropCount--;
+						if (dropCount === 0) {
+						  updateDataGrid();
+						}
+					  });
+					};
+
+					// If created is available, proceed directly
+					if (engItem?.created) {
+					  proceedWithDrop(engItem.created);
+					} else {
+					  // Else, fetch it from GET webservice
+					  fetchEngItemDetails(pid, function (response) {
+						const createdVal = response?.created || '';
+						proceedWithDrop(createdVal);
+					  }, function (err) {
+						console.error("Failed to fetch EngItem details:", err);
+						proceedWithDrop(null); // still allow drop
+					  });
+					}
+				  });
+				} catch (e) {
+				  console.error("Failed to parse dropped data:", e);
 				}
-			  });
-			});
-		  } catch (e) {
-			console.error("Failed to parse dropped data:", e);
-		  }
 		}
       });
     }
   };
+function fetchEngItemDetails(pid, onSuccess, onError) {
+  i3DXCompassServices.getServiceUrl({
+    platformId: widget.getValue("x3dPlatformId"),
+    serviceName: "3DSpace",
+    onComplete: function (URL3DSpace) {
+      let baseUrl = typeof URL3DSpace === "string" ? URL3DSpace : URL3DSpace[0].url;
+      if (baseUrl.endsWith("/3dspace")) baseUrl = baseUrl.replace("/3dspace", "");
 
+      const csrfURL = baseUrl + "/resources/v1/application/CSRF";
+
+      WAFData.authenticatedRequest(csrfURL, {
+        method: "GET",
+        type: "json",
+        onComplete: function (csrfData) {
+          const csrfToken = csrfData.csrf.value;
+          const csrfHeader = csrfData.csrf.name;
+
+          const getUrl = baseUrl + "/resources/v1/modeler/dseng:EngItem/" + pid;
+
+          WAFData.authenticatedRequest(getUrl, {
+            method: "GET",
+            type: "json",
+            headers: {
+              "Content-Type": "application/json",
+              "SecurityContext": "VPLMProjectLeader.Company Name.APTIV INDIA",
+              [csrfHeader]: csrfToken
+            },
+            onComplete: function (resp) {
+              console.log("EngItem GET success:", resp);
+              onSuccess && onSuccess(resp);
+            },
+            onFailure: function (err) {
+              console.error("EngItem GET failed:", err);
+              onError && onError(err);
+            }
+          });
+        },
+        onFailure: function (err) {
+          console.error("CSRF token fetch failed:", err);
+          onError && onError(err);
+        }
+      });
+    },
+    onFailure: function () {
+      console.error("Failed to get 3DSpace URL");
+      onError && onError("Service URL failed");
+    }
+  });
+}
   function createGrid(data) {
   if (grid) grid.destroy();
 
