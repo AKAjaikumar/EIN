@@ -368,36 +368,11 @@ function fetchEngItemDetails(pid, onSuccess, onError) {
 					  let pending = rootIds.length;
 
 					  rootIds.forEach(rootId => {
-						fetchEngItemDetails(rootId, (engItem) => {
-						  const rootRow = {
-							id: rootId,
-							name: engItem?.name || 'Root',
-							type: engItem?.type || 'VPMReference',
-							created: engItem?.created || new Date().toISOString(),
-							maturityState: engItem?.state || '',
-							level: 0,
-							enterpriseItemNumber: engItem?.partNumber || '', // optional if available
-							hasChildren: true,
-							_expanded: true,
-							expandcol: '',
-							parentId: null
-						  };
-
-						  rowsMap[rootId] = rootRow;
-
-						  fetchChildren(rootId, 1, rootRow, () => {
-							pending--;
-							if (pending === 0) {
-							  spinnerOverlay.remove();
-							  alert("EIN update completed.");
-							  updateDataGrid();
-							}
-						  });
-						}, (err) => {
-						  console.error("Failed to fetch EngItem:", rootId, err);
+						fetchChildren(rootId, 0, null, () => {
 						  pending--;
 						  if (pending === 0) {
 							spinnerOverlay.remove();
+							alert("EIN update completed.");
 							updateDataGrid();
 						  }
 						});
