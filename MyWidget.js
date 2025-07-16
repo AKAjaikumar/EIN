@@ -241,29 +241,76 @@ define("hellow", [
 				  const selectedIds = Array.from(widget.body.querySelectorAll('.row-selector:checked'))
 									.map(cb => cb.getAttribute('data-id'));
 					console.log("selectedIds:",selectedIds);
-				  callEINWebService(selectedIds, () => {
- 
-					const rootIds = Object.values(rowsMap)
-					  .filter(row => row.level === 0)
-					  .map(row => row.id);
+				 if (selectedIds.length === 0) {
+					  alert("Please select at least one row.");
+					  return;
+					}
+					let remaining = selectedIds.length;
 
-					rowsMap = {};
-					let pending = rootIds.length;
-
-					rootIds.forEach(rootId => {
-					  fetchChildren(rootId, 0, null, () => {
-						pending--;
-						if (pending === 0) {
-						  spinnerOverlay.remove();
-						  alert("EIN updated successfully.");
-						  updateDataGrid();
+					selectedIds.forEach(id => {
+					  fetchLibraryForPart(id, function (libraryInfo) {
+						const classId = libraryInfo.classId;
+						if (!classId) {
+						  console.warn("No classification found for:", id);
+						  remaining--;
+						  if (remaining === 0) triggerFinalRefresh();
+						  return;
 						}
+
+						fetchLabelsFromIDs(classId).then(({ pathLabels }) => {
+						  if (pathLabels.includes("NON STANDARD")) {
+							const productGroupRCD = libraryInfo.attributes["ProductGroupRCD"] || "";
+							const itemCategoryRCD = libraryInfo.attributes["ItemCategoryRCD"] || "";
+							const drawingReference = libraryInfo.attributes["DrawingReference"] || "";
+							const sequenceKey = productGroupRCD + itemCategoryRCD + drawingReference;
+
+							fetchRunningNumber(sequenceKey, function (runningNo) {
+							  const newEIN = sequenceKey + runningNo;
+
+							  callEINWebService(id, newEIN, () => {
+								console.log(`EIN updated for ${id}: ${newEIN}`);
+								checkDone();
+							  }, () => {
+								console.error(`EIN update failed for ${id}`);
+								checkDone();
+							  });
+							});
+						  } else {
+							checkDone();
+						  }
+						}).catch(err => {
+						  console.error("Label fetch failed for:", id, err);
+						  checkDone();
+						});
 					  });
 					});
-				  }, () => {
-					spinnerOverlay.remove();
-					alert("EIN update failed.");
-				  });
+					function checkDone() {
+					  remaining--;
+					  if (remaining === 0) {
+						triggerFinalRefresh();
+					  }
+					}
+
+				  function triggerFinalRefresh() {
+					  const rootIds = Object.values(rowsMap)
+						.filter(row => row.level === 0)
+						.map(row => row.id);
+
+					  rowsMap = {}; 
+
+					  let pending = rootIds.length;
+
+					  rootIds.forEach(rootId => {
+						fetchChildren(rootId, 0, null, () => {
+						  pending--;
+						  if (pending === 0) {
+							spinnerOverlay.remove();
+							alert("EIN update completed.");
+							updateDataGrid();
+						  }
+						});
+					  });
+					}
 				
 				}
 			  });
@@ -353,7 +400,7 @@ define("hellow", [
   }, 300);
 }
 
-function callEINWebService(selectedIds, onComplete, onError) {
+function callEINWebService(id, newEIN,onComplete, onError) {
   i3DXCompassServices.getServiceUrl({
       platformId: widget.getValue("x3dPlatformId"),
       serviceName: "3DSpace",
@@ -369,14 +416,21 @@ function callEINWebService(selectedIds, onComplete, onError) {
           onComplete: function (csrfData) {
             const csrfToken = csrfData.csrf.value;
             const csrfHeader = csrfData.csrf.name;
-				  WAFData.authenticatedRequest('https://b9a982b4522d.ngrok-free.app/elgirs/api/hello/setEIN?ObjectID='+selectedIds, {
-					method: 'POST',
+			const engUrl = baseUrl + "/dseng:EngItem/"+id;
+			const payload = {
+					"dseng:EnterpriseReference": {
+					  "partNumber": newEIN
+					}
+				  };
+				  WAFData.authenticatedRequest(engUrl, {
+					method: 'PATCH',
 					type: 'json',
 					headers: {
-					  'Content-Type': 'application/json',
-					  'SecurityContext': 'VPLMProjectLeader.Company Name.APTIV INDIA',
+					  "Content-Type": "application/json",
+					  "SecurityContext": "VPLMProjectLeader.Company Name.APTIV INDIA",
 					  [csrfHeader]: csrfToken
 					},
+					data: JSON.stringify(payload),
 					onComplete: function (response) {
 					  console.log("EIN Web Service Success:", response);
 					  onComplete && onComplete(response);
@@ -398,239 +452,7 @@ function callEINWebService(selectedIds, onComplete, onError) {
 		});
 }
 
-
-
-  function fetchChildren(pid, level, parentRow, callback) {
-	  console.log("Fetched children for", pid, parentRow);
-    i3DXCompassServices.getServiceUrl({
-      platformId: widget.getValue("x3dPlatformId"),
-      serviceName: "3DSpace",
-      onComplete: function (URL3DSpace) {
-        let baseUrl = typeof URL3DSpace === "string" ? URL3DSpace : URL3DSpace[0].url;
-        if (baseUrl.endsWith("/3dspace")) baseUrl = baseUrl.replace("/3dspace", "");
-
-        const csrfURL = baseUrl + "/resources/v1/application/CSRF";
-
-        WAFData.authenticatedRequest(csrfURL, {
-          method: "GET",
-          type: "json",
-          onComplete: function (csrfData) {
-            const csrfToken = csrfData.csrf.value;
-            const csrfHeader = csrfData.csrf.name;
-
-            const postUrl = baseUrl + "/cvservlet/progressiveexpand/v2?tenant=" + platformId + "&output_format=cvjson";
-
-            const postData = {
-              batch: {
-                expands: [{
-                  aggregation_processors: [{
-                    truncate: {
-                      max_distance_from_prefix: 1,
-                      prefix_filter: {
-                        prefix_path: [{ physical_id_path: [pid] }]
-                      }
-                    }
-                  }],
-                  filter: {
-                    and: {
-                      filters: [
-                        {
-                          prefix_filter: {
-                            prefix_path: [{ physical_id_path: [pid] }]
-                          }
-                        },
-                        {
-                          and: {
-                            filters: [{
-                              sequence_filter: {
-                                sequence: [{
-                                  uql: '((flattenedtaxonomies:"reltypes/VPMInstance") OR (flattenedtaxonomies:"reltypes/VPMRepInstance") OR (flattenedtaxonomies:"reltypes/SpecificationDocument")) AND (NOT (ds6wg_58_synchroebomext_46_v_95_inebomuser:"FALSE"))'
-                                }]
-                              }
-                            }]
-                          }
-                        }
-                      ]
-                    }
-                  },
-                  graph: {
-                   
-                    descending_condition_relation: {
-                      uql: 'NOT (flattenedtaxonomies:"reltypes/XCADBaseDependency") AND ((flattenedtaxonomies:"reltypes/VPMInstance") OR (flattenedtaxonomies:"reltypes/VPMRepInstance") OR (flattenedtaxonomies:"reltypes/SpecificationDocument"))'
-                    }
-                  },
-                  label: "expand-root-" + Date.now(),
-                  root: {
-                    physical_id: pid
-                  }
-                }]
-              },
-              outputs: {
-                format: "entity_relation_occurrence",
-                select_object: ["ds6w:label", "ds6w:created", "type", "physicalid","ds6wg:EnterpriseExtension.V_PartNumber","ds6w:status"],
-                select_relation: ["ds6w:type", "type", "physicalid"]
-              }
-            };
-
-            WAFData.authenticatedRequest(postUrl, {
-              method: "POST",
-              type: "json",
-              headers: {
-                "Content-Type": "application/json",
-                'SecurityContext': 'VPLMProjectLeader.Company Name.APTIV INDIA',
-                [csrfHeader]: csrfToken
-              },
-              data: JSON.stringify(postData),
-              onComplete: function (resp) {
-                const children = [];
-				const results = resp.results || [];
-
-				const rootObj = results.find(item => item.resourceid === pid && item.type === "VPMReference");
-				console.log("rootObj:"+rootObj);
-				console.log("rowsMap[pid]:"+rowsMap[pid]);
-				console.log("pid:"+pid);
-				if (rootObj) {
-				  const rootPartNumber = rootObj["ds6wg:EnterpriseExtension.V_PartNumber"]
-					|| (rootObj.attributes ? getAttributeValue(rootObj.attributes, "ds6wg:EnterpriseExtension.V_PartNumber") : '');
-					console.log("rootPartNumber:"+rootPartNumber);
-					if (rowsMap[pid]) {
-   
-						rowsMap[pid].enterpriseItemNumber = rootPartNumber;
-						rowsMap[pid].maturityState = rootObj["ds6w:status"];
-						parentRow = rowsMap[pid];
-					} else {
-				   
-					const rootRow = {
-					  id: rootObj.resourceid,
-					  name: rootObj["ds6w:label"] || "Root",
-					  type: rootObj["type"] || "VPMReference",
-					  created: rootObj["ds6w:created"] || new Date().toISOString(),
-					  level: 0,
-					  enterpriseItemNumber: rootPartNumber,
-					  maturityState: rootObj["ds6w:status"] ,
-					  hasChildren: true,
-					  _expanded: true,
-					  expandcol: '',
-					  parentId: null
-					};
-					rowsMap[rootObj.resourceid] = rootRow;
-					parentRow = rootRow;
-				  }
-				}
-				const objectMap = {};
-				results.forEach(item => {
-				  if (item.type === "VPMReference") {
-					objectMap[item.resourceid] = item;
-				  }
-				});
-
-				const childrenPromises = results.map(item => {
-					  if (item.type === "VPMInstance" && item.from === pid) {
-						const childObj = objectMap[item.to];
-						if (!childObj) return null;
-
-						return new Promise((resolve) => {
-						  let partNumber = childObj["ds6wg:EnterpriseExtension.V_PartNumber"]
-							|| (childObj.attributes ? getAttributeValue(childObj.attributes, "ds6wg:EnterpriseExtension.V_PartNumber") : '');
-
-						  if (partNumber) {
-							const row = buildRow(childObj, parentRow, partNumber, level);
-							rowsMap[childObj.resourceid] = row;
-							resolve(row);
-						  } else {
-							fetchLibraryForPart(childObj.resourceid, function(libraryInfo) {
-							  const classId = libraryInfo.classId;
-							  if (!classId) {
-								resolve(buildRow(childObj, parentRow, "", level));
-								return;
-							  }
-
-							  fetchLabelsFromIDs(classId)
-								.then(({ pathLabels }) => {
-								  if (pathLabels.includes("NON STANDARD")) {
-									const productGroupRCD = libraryInfo.attributes["ProductGroupRCD"] || "";
-									const itemCategoryRCD = libraryInfo.attributes["ItemCategoryRCD"] || "";
-									const drawingReference = libraryInfo.attributes["DrawingReference"] || "";
-									const sequenceKey = productGroupRCD + itemCategoryRCD + drawingReference;
-
-									fetchRunningNumber(sequenceKey, function(runningno) {
-									  const finalEIN = sequenceKey + runningno;
-									  const row = buildRow(childObj, parentRow, finalEIN, level);
-									  rowsMap[childObj.resourceid] = row;
-									  resolve(row);
-									});
-								  } else {
-									const row = buildRow(childObj, parentRow, "", level);
-									rowsMap[childObj.resourceid] = row;
-									resolve(row);
-								  }
-								})
-								.catch(() => {
-								  const row = buildRow(childObj, parentRow, "", level);
-								  rowsMap[childObj.resourceid] = row;
-								  resolve(row);
-								});
-							});
-						  }
-						});
-					  } else {
-						return null;
-					  }
-					});
-
-					Promise.all(childrenPromises.filter(Boolean)).then(rows => {
-					  const children = rows;
-					  parentRow._children = children;
-					  parentRow._expanded = true;
-					  updateDataGrid(); // now all EINs are available
-					  callback && callback();
-					});
-
-				if (!children || children.length === 0) {
-				  callback && callback();  
-				} else {
-				  let remaining = children.length;
-				  children.forEach(child => {
-					fetchChildren(child.id, child.level + 1, child, function () {
-					  remaining--;
-					  if (remaining === 0) {
-						callback && callback();
-					  }
-					});
-				  });
-				}
-              },
-              onFailure: function (err) {
-                console.error("Failed to fetch structure from progressiveexpand:", err);
-              }
-            });
-          },
-          onFailure: function (err) {
-            console.error("Failed to fetch CSRF token:", err);
-          }
-        });
-      },
-      onFailure: function () {
-        console.error("Failed to get 3DSpace URL");
-      }
-    });
-  }
-  function buildRow(obj, parentRow, ein, level) {
-  return {
-    id: obj.resourceid,
-    name: obj["ds6w:label"],
-    type: obj["type"],
-    created: obj["ds6w:created"],
-    level: level,
-    enterpriseItemNumber: ein || "",
-    maturityState: obj["ds6w:status"],
-    hasChildren: true,
-    _expanded: true,
-    expandcol: '',
-    parentId: parentRow ? parentRow.id : null
-  };
-}
-	function fetchRunningNumber(sequence, callback) {
+function fetchRunningNumber(sequence, callback) {
 	  i3DXCompassServices.getServiceUrl({
 		  platformId: widget.getValue("x3dPlatformId"),
 		  serviceName: "3DSpace",
@@ -646,6 +468,7 @@ function callEINWebService(selectedIds, onComplete, onError) {
 			  onComplete: function (csrfData) {
 				const csrfToken = csrfData.csrf.value;
 				const csrfHeader = csrfData.csrf.name;
+				const navigateUrl = baseUrl + "/cvservlet/navigate";
 					  WAFData.authenticatedRequest('https://b9a982b4522d.ngrok-free.app/elgirs/api/hello/setEIN?ObjectID='+sequence, {
 						method: 'POST',
 						type: 'json',
@@ -766,7 +589,7 @@ function callEINWebService(selectedIds, onComplete, onError) {
         });
     });
 }
-  function fetchLibraryForPart(physicalId, callback) {
+ function fetchLibraryForPart(physicalId, callback) {
   const platformId = widget.getValue("x3dPlatformId");
 
   i3DXCompassServices.getServiceUrl({
@@ -825,7 +648,188 @@ function callEINWebService(selectedIds, onComplete, onError) {
   });
 }
 
+  function fetchChildren(pid, level, parentRow, callback) {
+	  console.log("Fetched children for", pid, parentRow);
+    i3DXCompassServices.getServiceUrl({
+      platformId: widget.getValue("x3dPlatformId"),
+      serviceName: "3DSpace",
+      onComplete: function (URL3DSpace) {
+        let baseUrl = typeof URL3DSpace === "string" ? URL3DSpace : URL3DSpace[0].url;
+        if (baseUrl.endsWith("/3dspace")) baseUrl = baseUrl.replace("/3dspace", "");
 
+        const csrfURL = baseUrl + "/resources/v1/application/CSRF";
+
+        WAFData.authenticatedRequest(csrfURL, {
+          method: "GET",
+          type: "json",
+          onComplete: function (csrfData) {
+            const csrfToken = csrfData.csrf.value;
+            const csrfHeader = csrfData.csrf.name;
+
+            const postUrl = baseUrl + "/cvservlet/progressiveexpand/v2?tenant=" + platformId + "&output_format=cvjson";
+
+            const postData = {
+              batch: {
+                expands: [{
+                  aggregation_processors: [{
+                    truncate: {
+                      max_distance_from_prefix: 1,
+                      prefix_filter: {
+                        prefix_path: [{ physical_id_path: [pid] }]
+                      }
+                    }
+                  }],
+                  filter: {
+                    and: {
+                      filters: [
+                        {
+                          prefix_filter: {
+                            prefix_path: [{ physical_id_path: [pid] }]
+                          }
+                        },
+                        {
+                          and: {
+                            filters: [{
+                              sequence_filter: {
+                                sequence: [{
+                                  uql: '((flattenedtaxonomies:"reltypes/VPMInstance") OR (flattenedtaxonomies:"reltypes/VPMRepInstance") OR (flattenedtaxonomies:"reltypes/SpecificationDocument")) AND (NOT (ds6wg_58_synchroebomext_46_v_95_inebomuser:"FALSE"))'
+                                }]
+                              }
+                            }]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  graph: {
+                   
+                    descending_condition_relation: {
+                      uql: 'NOT (flattenedtaxonomies:"reltypes/XCADBaseDependency") AND ((flattenedtaxonomies:"reltypes/VPMInstance") OR (flattenedtaxonomies:"reltypes/VPMRepInstance") OR (flattenedtaxonomies:"reltypes/SpecificationDocument"))'
+                    }
+                  },
+                  label: "expand-root-" + Date.now(),
+                  root: {
+                    physical_id: pid
+                  }
+                }]
+              },
+              outputs: {
+                format: "entity_relation_occurrence",
+                select_object: ["ds6w:label", "ds6w:created", "type", "physicalid","ds6wg:EnterpriseExtension.V_PartNumber","ds6w:status"],
+                select_relation: ["ds6w:type", "type", "physicalid"]
+              }
+            };
+
+            WAFData.authenticatedRequest(postUrl, {
+              method: "POST",
+              type: "json",
+              headers: {
+                "Content-Type": "application/json",
+                'SecurityContext': 'VPLMProjectLeader.Company Name.APTIV INDIA',
+                [csrfHeader]: csrfToken
+              },
+              data: JSON.stringify(postData),
+              onComplete: function (resp) {
+                const children = [];
+				const results = resp.results || [];
+
+				const rootObj = results.find(item => item.resourceid === pid && item.type === "VPMReference");
+				console.log("rootObj:"+rootObj);
+				console.log("rowsMap[pid]:"+rowsMap[pid]);
+				console.log("pid:"+pid);
+				if (rootObj) {
+				  const rootPartNumber = rootObj["ds6wg:EnterpriseExtension.V_PartNumber"]
+					|| (rootObj.attributes ? getAttributeValue(rootObj.attributes, "ds6wg:EnterpriseExtension.V_PartNumber") : '');
+					console.log("rootPartNumber:"+rootPartNumber);
+					if (rowsMap[pid]) {
+   
+					rowsMap[pid].enterpriseItemNumber = rootPartNumber;
+					rowsMap[pid].maturityState = rootObj["ds6w:status"];
+					parentRow = rowsMap[pid];
+					} else {
+				   
+					const rootRow = {
+					  id: rootObj.resourceid,
+					  name: rootObj["ds6w:label"] || "Root",
+					  type: rootObj["type"] || "VPMReference",
+					  created: rootObj["ds6w:created"] || new Date().toISOString(),
+					  level: 0,
+					  enterpriseItemNumber: rootPartNumber,
+					  maturityState: rootObj["ds6w:status"] ,
+					  hasChildren: true,
+					  _expanded: true,
+					  expandcol: '',
+					  parentId: null
+					};
+					rowsMap[rootObj.resourceid] = rootRow;
+					parentRow = rootRow;
+				  }
+				}
+				const objectMap = {};
+				results.forEach(item => {
+				  if (item.type === "VPMReference") {
+					objectMap[item.resourceid] = item;
+				  }
+				});
+
+				results.forEach(item => {
+				  if (item.type === "VPMInstance" && item.from === pid) {
+					const childObj = objectMap[item.to];
+					if (childObj) {
+					const partNumber = childObj["ds6wg:EnterpriseExtension.V_PartNumber"]
+								|| (childObj.attributes ? getAttributeValue(childObj.attributes, "ds6wg:EnterpriseExtension.V_PartNumber") : '');
+						console.log("partNumber=="+partNumber);
+					  const row = {
+						id: childObj.resourceid,
+						name: childObj["ds6w:label"],
+						type: childObj["type"],
+						created: childObj["ds6w:created"],
+						level: level,
+						enterpriseItemNumber: partNumber,
+						maturityState: childObj["ds6w:status"] ,
+						hasChildren: true,
+						_expanded: true,
+						expandcol: '', 
+						parentId: parentRow ? parentRow.id : null
+					  };
+					  children.push(row);
+					  rowsMap[childObj.resourceid] = row;
+					}
+				  }
+				});
+
+               parentRow._children = children || [];
+				parentRow._expanded = true;
+
+				if (!children || children.length === 0) {
+				  callback && callback();  
+				} else {
+				  let remaining = children.length;
+				  children.forEach(child => {
+					fetchChildren(child.id, child.level + 1, child, function () {
+					  remaining--;
+					  if (remaining === 0) {
+						callback && callback();
+					  }
+					});
+				  });
+				}
+              },
+              onFailure: function (err) {
+                console.error("Failed to fetch structure from progressiveexpand:", err);
+              }
+            });
+          },
+          onFailure: function (err) {
+            console.error("Failed to fetch CSRF token:", err);
+          }
+        });
+      },
+      onFailure: function () {
+        console.error("Failed to get 3DSpace URL");
+      }
+    });
+  }
   function getAttributeValue(attributesArray, attrName) {
 	  for (let i = 0; i < attributesArray.length; i++) {
 		if (attributesArray[i].name === attrName) {
