@@ -272,16 +272,15 @@ function fetchEngItemDetails(pid, onSuccess, onError) {
         return state !== "IN_WORK";
       });
 		const alreadySetRows = selectedData.filter(row => row.partNumber && row.partNumber.trim() !== '');
-		if (alreadySetRows.length > 0) {
-		  const names = alreadySetRows.map(r => r.name).join(", ");
-		  alert(`EIN is already set for: ${names}. You cannot reset EIN.`);
-		  return;
-		}
       if (invalidRows.length > 0) {
         const names = invalidRows.map(r => r.name).join(", ");
         alert(`Cannot proceed. Only 'IN_WORK' objects can be set.\nOffending object(s): ${names}`);
         return;
-      }  else {
+      } else if (alreadySetRows.length > 0) {
+		  const names = alreadySetRows.map(r => r.name).join(", ");
+		  alert(`EIN is already set for: ${names}. You cannot reset EIN.`);
+		  return;
+		} else {
 		    showConfirmationPopup({
 				title: "Set EIN",
 				message: "Do you want to proceed with setting EIN for the selected items?",
@@ -328,12 +327,13 @@ function fetchEngItemDetails(pid, onSuccess, onError) {
 						const classId = libraryInfo.classId;
 						console.log("classId:",classId);
 						if (!classId) {
-							const objName = rowsMap[id]?.name || id;
-							alert(`Object "${objName}" is not classified. EIN cannot be set.`);
-						  console.warn("No classification found for:", id);
-						  remaining--;
-						  if (remaining === 0) triggerFinalRefresh();
-						  return;
+						  const objName = rowsMap[id]?.name || id;
+						  spinnerOverlay.remove(); 
+						  alert(`Object "${objName}" is not classified. EIN cannot be set.`);
+
+						 
+						  remaining = 0; 
+						  return; 
 						}
 
 						fetchLabelsFromIDs(classId).then(({ pathLabels }) => {
