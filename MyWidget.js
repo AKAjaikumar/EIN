@@ -315,7 +315,7 @@ function fetchEngItemDetails(pid, onSuccess, onError) {
 					selectedIds.forEach(id => {
 					  fetchLibraryForPart(id, function (libraryInfo) {
 						const classId = libraryInfo.classId;
-						System.out.println("classId:",classId);
+						console.log("classId:",classId);
 						if (!classId) {
 						  console.warn("No classification found for:", id);
 						  remaining--;
@@ -324,16 +324,16 @@ function fetchEngItemDetails(pid, onSuccess, onError) {
 						}
 
 						fetchLabelsFromIDs(classId).then(({ pathLabels }) => {
-							System.out.println("pathLabels:",pathLabels);
+							console.log("pathLabels:",pathLabels);
 						  if (pathLabels.includes("NON STANDARD")) {
 							const productGroupRCD = libraryInfo.attributes["ProductGroupRCD"] || "";
 							const itemCategoryRCD = libraryInfo.attributes["ItemCategoryRCD"] || "";
 							const drawingReference = libraryInfo.attributes["DrawingReference"] || "";
 							const sequenceKey = productGroupRCD + itemCategoryRCD + drawingReference;
-							System.out.println("sequenceKey:",sequenceKey);
+							console.log("sequenceKey:",sequenceKey);
 							fetchRunningNumber(sequenceKey, function (runningNo) {
 							  const newEIN = sequenceKey + runningNo;
-								System.out.println("newEIN:",newEIN);
+								console.log("newEIN:",newEIN);
 							  callEINWebService(id, newEIN, () => {
 								console.log(`EIN updated for ${id}: ${newEIN}`);
 								checkDone();
