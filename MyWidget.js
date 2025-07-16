@@ -119,7 +119,7 @@ function fetchEngItemDetails(pid, onSuccess, onError) {
           const csrfToken = csrfData.csrf.value;
           const csrfHeader = csrfData.csrf.name;
 
-          const getUrl = baseUrl + "/dseng:EngItem/" + pid;
+          const getUrl = baseUrl + "/resources/v1/modeler/dseng/dseng:EngItem/" + pid;
 
           WAFData.authenticatedRequest(getUrl, {
             method: "GET",
