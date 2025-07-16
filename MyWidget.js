@@ -363,7 +363,7 @@ function fetchEngItemDetails(pid, onSuccess, onError) {
 						.filter(row => row.level === 0)
 						.map(row => row.id);
 
-					  rowsMap = {}; 
+					  //rowsMap = {}; 
 
 					  let pending = rootIds.length;
 
