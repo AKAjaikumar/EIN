@@ -368,21 +368,21 @@ function fetchEngItemDetails(pid, onSuccess, onError) {
 					  let pending = rootIds.length;
 
 					  rootIds.forEach(rootId => {
-  
+						fetchEngItemDetails(rootId, (engItem) => {
 						  const rootRow = {
 							id: rootId,
-							name: '', // optional placeholder
-							type: '', // optional
-							created: '', // optional
+							name: engItem?.name || 'Root',
+							type: engItem?.type || 'VPMReference',
+							created: engItem?.created || new Date().toISOString(),
+							maturityState: engItem?.state || '',
 							level: 0,
-							enterpriseItemNumber: '',
-							maturityState: '',
+							enterpriseItemNumber: engItem?.partNumber || '', // optional if available
 							hasChildren: true,
 							_expanded: true,
 							expandcol: '',
 							parentId: null
 						  };
-						  
+
 						  rowsMap[rootId] = rootRow;
 
 						  fetchChildren(rootId, 1, rootRow, () => {
@@ -393,7 +393,15 @@ function fetchEngItemDetails(pid, onSuccess, onError) {
 							  updateDataGrid();
 							}
 						  });
+						}, (err) => {
+						  console.error("Failed to fetch EngItem:", rootId, err);
+						  pending--;
+						  if (pending === 0) {
+							spinnerOverlay.remove();
+							updateDataGrid();
+						  }
 						});
+					  });
 					}
 				
 				}
