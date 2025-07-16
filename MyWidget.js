@@ -250,6 +250,7 @@ define("hellow", [
 					selectedIds.forEach(id => {
 					  fetchLibraryForPart(id, function (libraryInfo) {
 						const classId = libraryInfo.classId;
+						System.out.println("classId:",classId);
 						if (!classId) {
 						  console.warn("No classification found for:", id);
 						  remaining--;
@@ -258,15 +259,16 @@ define("hellow", [
 						}
 
 						fetchLabelsFromIDs(classId).then(({ pathLabels }) => {
+							System.out.println("pathLabels:",pathLabels);
 						  if (pathLabels.includes("NON STANDARD")) {
 							const productGroupRCD = libraryInfo.attributes["ProductGroupRCD"] || "";
 							const itemCategoryRCD = libraryInfo.attributes["ItemCategoryRCD"] || "";
 							const drawingReference = libraryInfo.attributes["DrawingReference"] || "";
 							const sequenceKey = productGroupRCD + itemCategoryRCD + drawingReference;
-
+							System.out.println("sequenceKey:",sequenceKey);
 							fetchRunningNumber(sequenceKey, function (runningNo) {
 							  const newEIN = sequenceKey + runningNo;
-
+								System.out.println("newEIN:",newEIN);
 							  callEINWebService(id, newEIN, () => {
 								console.log(`EIN updated for ${id}: ${newEIN}`);
 								checkDone();
