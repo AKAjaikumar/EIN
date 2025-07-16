@@ -518,7 +518,7 @@ function callEINWebService(id, newEIN,onComplete, onError) {
 					  "partNumber": newEIN
 				  };
 				  WAFData.authenticatedRequest(engUrl, {
-					method: 'PATCH',
+					method: 'POST',
 					type: 'json',
 					headers: {
 					  "Content-Type": "application/json",
