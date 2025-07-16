@@ -56,7 +56,12 @@ define("hellow", [
 				dropCount--;
 				return;
 			  }
-
+			const objectType = engItem?.objectType || '';
+			  if (objectType !== 'VPMReference') {
+				alert(`Only VPMReference objects are allowed. Skipped item: ${engItem?.displayName || pid}`);
+				dropCount--;
+				return;
+			  }
 			  const isNew = !rowsMap[pid];
 			  const proceedWithDrop = (maturityState, engItemDetails) => {
 				   const partNumber = engItemDetails?.["dseng:EnterpriseReference"]?.partNumber || '';
