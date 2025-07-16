@@ -58,14 +58,15 @@ define("hellow", [
 			  }
 
 			  const isNew = !rowsMap[pid];
-			  const proceedWithDrop = (createdValue) => {
+			  const proceedWithDrop = (maturityState) => {
 					  const rootRow = {
 						id: pid,
 						name: engItem?.displayName || "Root",
 						type: engItem?.objectType || "VPMReference",
-						created: createdValue || new Date().toISOString(),
+						created: engItem?.created || new Date().toISOString(),
 						level: 0,
 						enterpriseItemNumber: '',
+						maturityState: maturityState || '',
 						hasChildren: true,
 						_expanded: true,
 						parentId: null
@@ -82,12 +83,12 @@ define("hellow", [
 					};
 
 					// If created is available, proceed directly
-					if (engItem?.created) {
-					  proceedWithDrop(engItem.created);
+					if (engItem?.state) {
+					  proceedWithDrop(engItem?.state);
 					} else {
 					  // Else, fetch it from GET webservice
 					  fetchEngItemDetails(pid, function (response) {
-						const createdVal = response?.created || '';
+						const maturityVal = response?.member?.[0]?.state || '';
 						proceedWithDrop(createdVal);
 					  }, function (err) {
 						console.error("Failed to fetch EngItem details:", err);
@@ -482,14 +483,12 @@ function callEINWebService(id, newEIN,onComplete, onError) {
           onComplete: function (csrfData) {
             const csrfToken = csrfData.csrf.value;
             const csrfHeader = csrfData.csrf.name;
-			const engUrl = baseUrl + "/dseng:EngItem/"+id;
+			const engUrl = baseUrl + "/resources/v1/modeler/dseng:EngItem/"+id+"/dseng:EnterpriseReference";
 			const payload = {
-					"dseng:EnterpriseReference": {
 					  "partNumber": newEIN
-					}
 				  };
 				  WAFData.authenticatedRequest(engUrl, {
-					method: 'PATCH',
+					method: 'POST',
 					type: 'json',
 					headers: {
 					  "Content-Type": "application/json",
