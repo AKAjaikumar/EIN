@@ -374,7 +374,7 @@ function fetchEngItemDetails(pid, onSuccess, onError) {
 
 							  if (item && rowsMap[rootId]) {
 								rowsMap[rootId].id = item.id;
-								rowsMap[rootId].name = item.name;
+								rowsMap[rootId].name = item.title;
 								rowsMap[rootId].title = item.title;
 								rowsMap[rootId].level = item.level || '1';
 								rowsMap[rootId].maturityState = item.state || '';
