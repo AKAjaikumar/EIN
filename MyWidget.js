@@ -675,6 +675,7 @@ function fetchRunningNumber(sequence, callback) {
         },
         onComplete: function(data) {
           try {
+			  console.log("Classification Data:", data);
             const classKey = Object.keys(data)[0];
             const classData = data[classKey];
 
