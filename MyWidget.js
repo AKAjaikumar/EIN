@@ -483,7 +483,7 @@ function callEINWebService(id, newEIN,onComplete, onError) {
           onComplete: function (csrfData) {
             const csrfToken = csrfData.csrf.value;
             const csrfHeader = csrfData.csrf.name;
-			const engUrl = baseUrl + "/resources/v1/modeler/dseng:EngItem/"+id+"/dseng:EnterpriseReference";
+			const engUrl = baseUrl + "/resources/v1/modeler/dseng/dseng:EngItem/"+id+"/dseng:EnterpriseReference";
 			const payload = {
 					  "partNumber": newEIN
 				  };
