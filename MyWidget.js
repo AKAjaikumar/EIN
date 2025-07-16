@@ -368,15 +368,32 @@ function fetchEngItemDetails(pid, onSuccess, onError) {
 					  let pending = rootIds.length;
 
 					  rootIds.forEach(rootId => {
-						fetchChildren(rootId, 0, null, () => {
-						  pending--;
-						  if (pending === 0) {
-							spinnerOverlay.remove();
-							alert("EIN update completed.");
-							updateDataGrid();
-						  }
+  
+						  const rootRow = {
+							id: rootId,
+							name: '', // optional placeholder
+							type: '', // optional
+							created: '', // optional
+							level: 0,
+							enterpriseItemNumber: '',
+							maturityState: '',
+							hasChildren: true,
+							_expanded: true,
+							expandcol: '',
+							parentId: null
+						  };
+						  
+						  rowsMap[rootId] = rootRow;
+
+						  fetchChildren(rootId, 1, rootRow, () => {
+							pending--;
+							if (pending === 0) {
+							  spinnerOverlay.remove();
+							  alert("EIN update completed.");
+							  updateDataGrid();
+							}
+						  });
 						});
-					  });
 					}
 				
 				}
