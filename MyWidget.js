@@ -58,14 +58,15 @@ define("hellow", [
 			  }
 
 			  const isNew = !rowsMap[pid];
-			  const proceedWithDrop = (maturityState) => {
+			  const proceedWithDrop = (maturityState, engItemDetails) => {
+				   const partNumber = engItemDetails?.["dseng:EnterpriseReference"]?.partNumber || '';
 					  const rootRow = {
 						id: pid,
 						name: engItem?.displayName || "Root",
 						type: engItem?.objectType || "VPMReference",
 						created: engItem?.created || new Date().toISOString(),
 						level: 0,
-						enterpriseItemNumber: '',
+						enterpriseItemNumber: partNumber,
 						maturityState: maturityState || '',
 						hasChildren: true,
 						_expanded: true,
@@ -84,17 +85,17 @@ define("hellow", [
 
 					// If created is available, proceed directly
 					if (engItem?.state) {
-					  proceedWithDrop(engItem?.state);
-					} else {
-					  // Else, fetch it from GET webservice
-					  fetchEngItemDetails(pid, function (response) {
-						const maturityVal = response?.member?.[0]?.state || '';
-						proceedWithDrop(maturityVal);
-					  }, function (err) {
-						console.error("Failed to fetch EngItem details:", err);
-						proceedWithDrop(null); // still allow drop
-					  });
-					}
+						  proceedWithDrop(engItem?.state, engItem);
+						} else {
+						  fetchEngItemDetails(pid, function (response) {
+							const item = response?.member?.[0];
+							const maturityVal = item?.state || '';
+							proceedWithDrop(maturityVal, item);
+						  }, function (err) {
+							console.error("Failed to fetch EngItem details:", err);
+							proceedWithDrop(null, null); 
+						  });
+						}
 				  });
 				} catch (e) {
 				  console.error("Failed to parse dropped data:", e);
