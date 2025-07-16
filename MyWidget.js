@@ -89,7 +89,7 @@ define("hellow", [
 					  // Else, fetch it from GET webservice
 					  fetchEngItemDetails(pid, function (response) {
 						const maturityVal = response?.member?.[0]?.state || '';
-						proceedWithDrop(createdVal);
+						proceedWithDrop(maturityVal);
 					  }, function (err) {
 						console.error("Failed to fetch EngItem details:", err);
 						proceedWithDrop(null); // still allow drop
