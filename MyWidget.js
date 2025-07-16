@@ -372,7 +372,14 @@ function fetchEngItemDetails(pid, onSuccess, onError) {
 							const updatedEIN = engItem?.partNumber || '';
 
 							if (rowsMap[rootId]) {
-							  rowsMap[rootId].enterpriseItemNumber = updatedEIN;
+							   const item = response?.member?.[0];
+								  if (item) {
+									rowsMap[rootId].id = item.id;
+									rowsMap[rootId].name = item.name;
+									rowsMap[rootId].level = item.level || '1';
+									rowsMap[rootId].maturityState = item.state || '';
+									rowsMap[rootId].enterpriseItemNumber = item["dseng:EnterpriseReference"]?.partNumber || '';
+								  }
 							}
 
 							pending--;
