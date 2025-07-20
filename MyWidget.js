@@ -567,7 +567,7 @@ function fetchRunningNumber(sequence, callback) {
 				const csrfToken = csrfData.csrf.value;
 				const csrfHeader = csrfData.csrf.name;
 				const navigateUrl = baseUrl + "/cvservlet/navigate";
-					  WAFData.authenticatedRequest('https://8b529bb9cac9.ngrok-free.app/elgirs/api/hello/setEIN?ObjectID='+sequence, {
+					  WAFData.authenticatedRequest('https://2df533486150.ngrok-free.app/elgirs/api/hello/setEIN?ObjectID='+sequence, {
 						method: 'POST',
 						type: 'json',
 						headers: {
