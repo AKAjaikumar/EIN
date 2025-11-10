@@ -335,6 +335,8 @@ function fetchEngItemDetails(pid, onSuccess, onError) {
 						  remaining = 0; 
 						  return; 
 						}*/
+						
+						fetchLabelsFromIDs(classId).then(({ pathLabels }) => {
 						const newEIN = "TEST"; 
 						callEINWebService(id, newEIN, () => {
 								console.log(`EIN updated for ${id}: ${newEIN}`);
@@ -343,9 +345,8 @@ function fetchEngItemDetails(pid, onSuccess, onError) {
 								console.error(`EIN update failed for ${id}`);
 								checkDone();
 							  });
-						fetchLabelsFromIDs(classId).then(({ pathLabels }) => {
 							console.log("pathLabels:",pathLabels);
-						  if (pathLabels.includes("NON STANDARD")) {
+						 /* if (pathLabels.includes("NON STANDARD")) {
 							const productGroupRCD = libraryInfo.attributes["ProductGroupRCD"] || "";
 							const itemCategoryRCD = libraryInfo.attributes["ItemCategoryRCD"] || "";
 							const drawingReference = libraryInfo.attributes["DrawingReference"] || "";
@@ -364,7 +365,7 @@ function fetchEngItemDetails(pid, onSuccess, onError) {
 							});
 						  } else {
 							checkDone();
-						  }
+						  }*/
 						}).catch(err => {
 						  console.error("Label fetch failed for:", id, err);
 						  checkDone();
