@@ -323,14 +323,18 @@ function fetchEngItemDetails(pid, onSuccess, onError) {
 					let remaining = selectedIds.length;
 
 					selectedIds.forEach(id => {
-					const newEIN = "TEST"; 
-						callEINWebService(id, newEIN, () => {
+					const sequenceKey = "TEST"; 
+						fetchRunningNumber(sequenceKey, function (runningNo) {
+							  const newEIN = sequenceKey + runningNo;
+								console.log("newEIN:",newEIN);
+							  callEINWebService(id, newEIN, () => {
 								console.log(`EIN updated for ${id}: ${newEIN}`);
 								checkDone();
 							  }, () => {
 								console.error(`EIN update failed for ${id}`);
 								checkDone();
 							  });
+							});
 					 
 					});
 					function checkDone() {
