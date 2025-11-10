@@ -326,7 +326,7 @@ function fetchEngItemDetails(pid, onSuccess, onError) {
 					  fetchLibraryForPart(id, function (libraryInfo) {
 						const classId = libraryInfo.classId;
 						console.log("classId:",classId);
-						if (!classId) {
+						/*if (!classId) {
 						  const objName = rowsMap[id]?.name || id;
 						  spinnerOverlay.remove(); 
 						  alert(`Object "${objName}" is not classified. EIN cannot be set.`);
@@ -334,7 +334,7 @@ function fetchEngItemDetails(pid, onSuccess, onError) {
 						 
 						  remaining = 0; 
 						  return; 
-						}
+						}*/
 
 						fetchLabelsFromIDs(classId).then(({ pathLabels }) => {
 							console.log("pathLabels:",pathLabels);
