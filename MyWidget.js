@@ -335,7 +335,14 @@ function fetchEngItemDetails(pid, onSuccess, onError) {
 						  remaining = 0; 
 						  return; 
 						}*/
-
+						const newEIN = "TEST"; 
+						callEINWebService(id, newEIN, () => {
+								console.log(`EIN updated for ${id}: ${newEIN}`);
+								checkDone();
+							  }, () => {
+								console.error(`EIN update failed for ${id}`);
+								checkDone();
+							  });
 						fetchLabelsFromIDs(classId).then(({ pathLabels }) => {
 							console.log("pathLabels:",pathLabels);
 						  if (pathLabels.includes("NON STANDARD")) {
