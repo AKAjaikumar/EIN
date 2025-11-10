@@ -323,21 +323,7 @@ function fetchEngItemDetails(pid, onSuccess, onError) {
 					let remaining = selectedIds.length;
 
 					selectedIds.forEach(id => {
-					  fetchLibraryForPart(id, function (libraryInfo) {
-						const classId = libraryInfo.classId;
-						console.log("classId:",classId);
-						/*if (!classId) {
-						  const objName = rowsMap[id]?.name || id;
-						  spinnerOverlay.remove(); 
-						  alert(`Object "${objName}" is not classified. EIN cannot be set.`);
-
-						 
-						  remaining = 0; 
-						  return; 
-						}*/
-						
-						fetchLabelsFromIDs(classId).then(({ pathLabels }) => {
-						const newEIN = "TEST"; 
+					const newEIN = "TEST"; 
 						callEINWebService(id, newEIN, () => {
 								console.log(`EIN updated for ${id}: ${newEIN}`);
 								checkDone();
@@ -345,32 +331,7 @@ function fetchEngItemDetails(pid, onSuccess, onError) {
 								console.error(`EIN update failed for ${id}`);
 								checkDone();
 							  });
-							console.log("pathLabels:",pathLabels);
-						 /* if (pathLabels.includes("NON STANDARD")) {
-							const productGroupRCD = libraryInfo.attributes["ProductGroupRCD"] || "";
-							const itemCategoryRCD = libraryInfo.attributes["ItemCategoryRCD"] || "";
-							const drawingReference = libraryInfo.attributes["DrawingReference"] || "";
-							const sequenceKey = productGroupRCD + itemCategoryRCD + drawingReference;
-							console.log("sequenceKey:",sequenceKey);
-							fetchRunningNumber(sequenceKey, function (runningNo) {
-							  const newEIN = sequenceKey + runningNo;
-								console.log("newEIN:",newEIN);
-							  callEINWebService(id, newEIN, () => {
-								console.log(`EIN updated for ${id}: ${newEIN}`);
-								checkDone();
-							  }, () => {
-								console.error(`EIN update failed for ${id}`);
-								checkDone();
-							  });
-							});
-						  } else {
-							checkDone();
-						  }*/
-						}).catch(err => {
-						  console.error("Label fetch failed for:", id, err);
-						  checkDone();
-						});
-					  });
+					 
 					});
 					function checkDone() {
 					  remaining--;
